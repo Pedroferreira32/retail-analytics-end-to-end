@@ -12,7 +12,7 @@ license = "MIT"
 authors = [{ name = "Pedro Aurélio Gonçalves Ferreira" }]
 dependencies = [
   "pandas>=2.2.3,<3",
-  "pyarrow>=19,<23",
+  "pyarrow>=19,<27",
   "duckdb>=1.4,<2",
 ]
 
