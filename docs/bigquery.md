@@ -23,18 +23,36 @@ Choose the location deliberately and keep it the same for canonical and snapshot
 
 1. Creates a new dataset such as `retail_analytics__<run_id>`.
 2. Loads the four dimensions and three facts from Parquet with `WRITE_EMPTY`.
-3. Partitions facts by `purchase_date`, clustering by status and customer ID.
+3. By default, partitions facts by `purchase_date`, clustering by status and customer ID. The explicit `--no-partitioning` option keeps the clustering but omits date partitions for historical Sandbox loads.
 4. Creates the four SQL marts inside the snapshot.
-5. Compares all 11 cloud row counts with the validated local manifest.
+5. Runs a SQL `COUNT(*)` for all 11 cloud tables and compares the results with the validated local manifest, instead of relying on table metadata counts.
 6. Reconciles delivered GMV at item, order, month, category, state and customer grains, plus the recorded-payment total.
 7. Creates/advances canonical views in `retail_analytics` only after snapshot validation passes.
-8. Records snapshot dataset, job IDs and validation scope in `bigquery_publication.json`.
+8. Records snapshot dataset, job IDs, queried row counts, selected partitioning, returned retention settings and validation scope in `bigquery_publication.json`.
 
 The query cap defaults to **1 GiB per query** and can be changed with `--maximum-bytes-billed`. This is a query safety limit, not a guarantee of free operation or a budget across the entire workflow. Storage and any other platform charges follow the selected GCP account's billing configuration.
 
 Parquet timestamps are written at microsecond precision (`timestamp[us]`) with truncation disabled. The writer preserves timezone-naive source values and refuses any conversion that would lose submicrosecond data. BigQuery's Parquet loader supports millisecond/microsecond timestamps; a nanosecond export can be read as `INT64` and rejected as a partition key. Before any cloud writes, the loader checks the on-disk timestamp units and fact partition-column types.
 
 `purchase_date` is stored as a Parquet timestamp without an invented timezone. Verify the resulting BigQuery column type and partitioning during live acceptance. Do not reinterpret it as a UTC business timestamp without a documented source timezone decision.
+
+## Historical Olist data in BigQuery Sandbox
+
+The Sandbox automatically expires tables, views and partitions after 60 days. A date partition's expiration is measured from the partition's date, not the upload date. Consequently, partitioning the 2016–2018 Olist source by `purchase_date` can cause historical partitions to disappear immediately. A completed load job alone does not demonstrate that the data was retained.
+
+For this deployment, explicitly choose an unpartitioned historical load. The facts retain their original purchase dates and clustering. The Sandbox's table expiration still applies from table creation; the pipeline does not change dataset retention or billing settings.
+
+```bash
+git pull --ff-only
+source .venv/bin/activate
+python -m pip install --no-deps -e .
+retail run --raw-dir data/raw --output-dir data/processed --source-kind olist
+retail bigquery --project YOUR_PROJECT_ID --dataset retail_analytics --location US --no-partitioning
+```
+
+Reprocessing reuses the existing CSVs and produces a new snapshot name, leaving any failed snapshot intact. Before a partitioned upload, the loader checks the expiration settings returned by dataset creation and refuses to load historical dates that would already be expired. Partitioning remains the default for projects whose retention policy preserves the source dates.
+
+A `0 != 99441` row-count message is not, by itself, proof of partition expiration. To inspect the actual failed table, run `bq show --format=prettyjson YOUR_PROJECT_ID:SNAPSHOT_DATASET.fct_orders` and check `timePartitioning.expirationMs`. The current loader validates data through SQL, which also distinguishes real missing rows from a metadata-count discrepancy. Promotion still requires all row counts and monetary reconciliations to pass.
 
 ## Recover from an INT64 partition-column error
 
@@ -52,7 +70,7 @@ The new run gets a new manifest, output hashes and snapshot name. An incomplete 
 
 ## GitHub Actions with Workload Identity Federation
 
-Use the `Publish BigQuery` manual workflow from `main`. It validates the local source before obtaining cloud credentials. It uses GitHub OIDC and short-lived credentials; no service-account JSON key is required.
+Use the `Publish BigQuery` manual workflow from `main`. It validates the local source before obtaining cloud credentials. It uses GitHub OIDC and short-lived credentials; no service-account JSON key is required. For a historical Sandbox deployment, disable the workflow's `partition_facts` checkbox; it passes the same `--no-partitioning` option to the loader.
 
 Provision with an account allowed to enable APIs, manage service accounts and configure Workload Identity Federation. Replace `YOUR_PROJECT_ID` below with your own project. These commands are intended to run once in a dedicated project; if a named pool/provider already exists, inspect and reuse it rather than blindly recreating it.
 
@@ -114,10 +132,11 @@ Snapshots are retained until deliberately removed. Review storage and retention 
 
 - [ ] BigQuery API and actual selected project are accessible.
 - [ ] All 11 tables have the local manifest row counts.
-- [ ] Facts are partitioned/clustered as specified.
+- [ ] Facts use the partitioning recorded in `bigquery_publication.json` and retain the configured clustering; historical Sandbox loads use `fact_partitioning: none`.
+- [ ] Dataset/table retention settings preserve the historical rows for the intended demonstration period.
 - [ ] Six GMV totals and recorded payments reconcile in GCP.
 - [ ] No assumption about timestamp timezone was introduced by the Parquet mapping.
 - [ ] Reporting identity can read the selected snapshot and create query jobs.
 - [ ] Publication job IDs and the snapshot are recorded.
 
-References: [batch loading](https://docs.cloud.google.com/bigquery/docs/batch-loading-data), [Parquet type conversion](https://docs.cloud.google.com/bigquery/docs/loading-data-cloud-storage-parquet#type_conversions), [Arrow timestamp coercion](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.write_table.html), [BigQuery authentication](https://docs.cloud.google.com/bigquery/docs/authentication), [GitHub OIDC authentication action](https://github.com/google-github-actions/auth).
+References: [batch loading](https://docs.cloud.google.com/bigquery/docs/batch-loading-data), [Sandbox limitations](https://docs.cloud.google.com/bigquery/docs/sandbox#limitations), [partition expiration](https://docs.cloud.google.com/bigquery/docs/managing-partitioned-tables#set_the_partition_expiration), [Parquet type conversion](https://docs.cloud.google.com/bigquery/docs/loading-data-cloud-storage-parquet#type_conversions), [Arrow timestamp coercion](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.write_table.html), [BigQuery authentication](https://docs.cloud.google.com/bigquery/docs/authentication), [GitHub OIDC authentication action](https://github.com/google-github-actions/auth).

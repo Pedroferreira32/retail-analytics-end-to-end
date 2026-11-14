@@ -2,6 +2,12 @@ name: Publish BigQuery
 
 on:
   workflow_dispatch:
+    inputs:
+      partition_facts:
+        description: Partition facts by purchase date (disable for historical Sandbox loads)
+        type: boolean
+        default: true
+        required: true
 
 permissions:
   contents: read
@@ -53,8 +59,13 @@ jobs:
           GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
           BQ_DATASET: ${{ vars.BQ_DATASET || 'retail_analytics' }}
           BQ_LOCATION: ${{ vars.BQ_LOCATION || 'US' }}
+          BQ_PARTITION_FACTS: ${{ inputs.partition_facts }}
         run: |
-          retail bigquery --project "$GCP_PROJECT_ID" --dataset "$BQ_DATASET" --location "$BQ_LOCATION"
+          extra_args=()
+          if [[ "$BQ_PARTITION_FACTS" == "false" ]]; then
+            extra_args+=(--no-partitioning)
+          fi
+          retail bigquery --project "$GCP_PROJECT_ID" --dataset "$BQ_DATASET" --location "$BQ_LOCATION" "${extra_args[@]}"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:

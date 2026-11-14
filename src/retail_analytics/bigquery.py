@@ -7,6 +7,7 @@ Consumers requiring a consistent release should use the returned snapshot datase
 
 import json
 import re
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pyarrow as pa
@@ -34,6 +35,7 @@ def publish(
     maximum_bytes_billed: int = 1024**3,
     allow_synthetic: bool = False,
     client=None,
+    partition_facts: bool = True,
 ) -> dict:
     validate_target(project, dataset, maximum_bytes_billed)
     manifest = json.loads((run / "manifest.json").read_text(encoding="utf-8"))
@@ -79,7 +81,16 @@ def publish(
     snapshot.location = location
     snapshot.description = f"Retail Analytics validated snapshot {manifest['run_id']}"
     snapshot.labels = {"project": "retail-analytics", "source": manifest["source_kind"]}
-    client.create_dataset(snapshot, exists_ok=False)
+    snapshot = client.create_dataset(snapshot, exists_ok=False)
+    partition_expiration = snapshot.default_partition_expiration_ms
+    if partition_facts and partition_expiration is not None:
+        first_partition = datetime.fromisoformat(summary["purchase_start"]).replace(tzinfo=UTC)
+        if first_partition + timedelta(milliseconds=partition_expiration) <= datetime.now(UTC):
+            raise ValueError(
+                "Dataset partition expiration would immediately remove historical purchases. "
+                "For a historical Sandbox load, rerun with --no-partitioning and a new run. "
+                "Dataset retention settings have not been changed."
+            )
     jobs = []
     for name in MODEL_TABLES:
         config = bigquery.LoadJobConfig(
@@ -87,7 +98,8 @@ def publish(
             write_disposition=bigquery.WriteDisposition.WRITE_EMPTY,
         )
         if name.startswith("fct_"):
-            config.time_partitioning = bigquery.TimePartitioning(field="purchase_date")
+            if partition_facts:
+                config.time_partitioning = bigquery.TimePartitioning(field="purchase_date")
             config.clustering_fields = ["order_status", "customer_id"]
         with (run / "parquet" / f"{name}.parquet").open("rb") as stream:
             job = client.load_table_from_file(
@@ -107,11 +119,21 @@ def publish(
         )
         job.result()
         jobs.append(job.job_id)
-    # Full cloud reconciliation before canonical views change.
+    # Query the actual data before promotion instead of relying on num_rows metadata.
+    counts_sql = "\nUNION ALL\n".join(
+        f"SELECT '{name}' AS table_name, COUNT(*) AS row_count FROM `{snapshot_id}.{name}`"
+        for name in MODEL_TABLES + MARTS
+    )
+    counts_job = client.query(counts_sql, job_config=query_config, location=location)
+    row_counts = {row["table_name"]: int(row["row_count"]) for row in counts_job.result()}
+    jobs.append(counts_job.job_id)
+    if row_counts.keys() != manifest["output_rows"].keys():
+        raise ValueError("BigQuery row count validation did not return every expected table")
     for name, expected_rows in manifest["output_rows"].items():
-        actual = client.get_table(f"{snapshot_id}.{name}").num_rows
-        if actual != expected_rows:
-            raise ValueError(f"BigQuery row count mismatch for {name}: {actual} != {expected_rows}")
+        if row_counts[name] != expected_rows:
+            raise ValueError(
+                f"BigQuery row count mismatch for {name}: {row_counts[name]} != {expected_rows}"
+            )
     sql = f"""
     SELECT
       (SELECT SUM(price_cents) FROM `{snapshot_id}.fct_order_items`
@@ -148,6 +170,10 @@ def publish(
         "canonical_dataset": canonical_id,
         "snapshot_dataset": snapshot_id,
         "location": location,
+        "fact_partitioning": "purchase_date" if partition_facts else "none",
+        "row_counts": row_counts,
+        "default_table_expiration_ms": snapshot.default_table_expiration_ms,
+        "default_partition_expiration_ms": partition_expiration,
         "validation": "row counts, six GMV totals, payments",
         "job_ids": jobs,
     }

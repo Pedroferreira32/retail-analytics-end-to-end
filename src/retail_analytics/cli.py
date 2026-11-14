@@ -26,6 +26,11 @@ def parser() -> argparse.ArgumentParser:
     bq.add_argument("--location", default="US")
     bq.add_argument("--maximum-bytes-billed", type=int, default=1024**3)
     bq.add_argument("--allow-synthetic", action="store_true")
+    bq.add_argument(
+        "--no-partitioning",
+        action="store_true",
+        help="Load historical Sandbox facts without purchase-date partitions",
+    )
     return root
 
 
@@ -49,6 +54,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.location,
                 args.maximum_bytes_billed,
                 args.allow_synthetic,
+                partition_facts=not args.no_partitioning,
             )
             print(json.dumps(result, indent=2))
     except (DataQualityError, ValueError, FileNotFoundError, FileExistsError) as exc:

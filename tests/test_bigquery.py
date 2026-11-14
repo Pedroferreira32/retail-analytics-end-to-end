@@ -20,14 +20,20 @@ class FakeJob:
 
 
 class FakeClient:
-    def __init__(self, run, bad_gmv=False, bad_rows=False):
+    def __init__(self, run, bad_gmv=False, bad_rows=False, partition_expiration_ms=None):
         self.summary = json.loads((run / "summary.json").read_text())
         self.manifest = json.loads((run / "manifest.json").read_text())
         self.queries, self.loads, self.datasets = [], [], []
         self.bad_gmv, self.bad_rows = bad_gmv, bad_rows
+        self.partition_expiration_ms = partition_expiration_ms
 
     def create_dataset(self, dataset, **kwargs):
+        # Model server-applied Sandbox retention returned by create_dataset.
+        dataset.default_partition_expiration_ms = self.partition_expiration_ms
+        if self.partition_expiration_ms:
+            dataset.default_table_expiration_ms = self.partition_expiration_ms
         self.datasets.append(dataset)
+        return dataset
 
     def load_table_from_file(self, stream, table, **kwargs):
         assert stream.read(4) == b"PAR1"
@@ -40,6 +46,13 @@ class FakeClient:
 
     def query(self, sql, **kwargs):
         self.queries.append(sql)
+        if "AS row_count" in sql:
+            return FakeJob(
+                [
+                    {"table_name": name, "row_count": rows + int(self.bad_rows)}
+                    for name, rows in self.manifest["output_rows"].items()
+                ]
+            )
         if "AS item_gmv" in sql:
             row = dict.fromkeys(
                 ["item_gmv", "order_gmv", "monthly_gmv", "category_gmv", "state_gmv", "rfm_gmv"],
@@ -128,6 +141,73 @@ def test_cloud_snapshot_validates_before_promotion(validated_run):
     assert client.loads[0][1]["job_config"].write_disposition == "WRITE_EMPTY"
     facts = [kwargs["job_config"] for table, kwargs in client.loads if ".fct_" in table]
     assert all(c.time_partitioning.field == "purchase_date" for c in facts)
+
+
+def test_historical_partitions_are_blocked_before_upload(validated_run):
+    client = FakeClient(validated_run, partition_expiration_ms=60 * 86400 * 1000)
+    with pytest.raises(ValueError, match="partition expiration"):
+        publish(validated_run, "demo-project", "retail", "US", allow_synthetic=True, client=client)
+    assert not client.loads
+    assert not client.queries
+
+
+def test_unpartitioned_sandbox_load_preserves_retention_and_clustering(validated_run):
+    retention = 60 * 86400 * 1000
+    client = FakeClient(validated_run, partition_expiration_ms=retention)
+    result = publish(
+        validated_run,
+        "demo-project",
+        "retail",
+        "US",
+        allow_synthetic=True,
+        client=client,
+        partition_facts=False,
+    )
+    assert result["status"] == "published"
+    assert result["fact_partitioning"] == "none"
+    assert result["row_counts"] == client.manifest["output_rows"]
+    assert client.datasets[0].default_table_expiration_ms == retention
+    assert client.datasets[0].default_partition_expiration_ms == retention
+    facts = [config["job_config"] for table, config in client.loads if ".fct_" in table]
+    assert len(facts) == 3
+    assert all(config.time_partitioning is None for config in facts)
+    assert all(config.clustering_fields == ["order_status", "customer_id"] for config in facts)
+
+
+def test_row_count_validation_queries_data_instead_of_table_metadata(validated_run):
+    client = FakeClient(validated_run)
+    client.get_table = lambda table: SimpleNamespace(num_rows=0)
+    result = publish(
+        validated_run, "demo-project", "retail", "US", allow_synthetic=True, client=client
+    )
+    assert result["row_counts"] == client.manifest["output_rows"]
+    assert any("COUNT(*) AS row_count" in query for query in client.queries)
+
+
+def test_cli_can_request_a_historical_sandbox_load(validated_run, monkeypatch):
+    from retail_analytics import bigquery
+    from retail_analytics.cli import main
+
+    client = FakeClient(validated_run, partition_expiration_ms=60 * 86400 * 1000)
+    original = bigquery.publish
+
+    def with_client(*args, **kwargs):
+        return original(*args, **kwargs, client=client)
+
+    monkeypatch.setattr(bigquery, "publish", with_client)
+    result = main(
+        [
+            "bigquery",
+            "--processed-dir",
+            str(validated_run),
+            "--project",
+            "demo-project",
+            "--allow-synthetic",
+            "--no-partitioning",
+        ]
+    )
+    assert result == 0
+    assert all(config["job_config"].time_partitioning is None for _, config in client.loads)
 
 
 @pytest.mark.parametrize("bad_rows,bad_gmv", [(True, False), (False, True)])
