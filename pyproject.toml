@@ -13,7 +13,7 @@ authors = [{ name = "Pedro Aurélio Gonçalves Ferreira" }]
 dependencies = [
   "pandas>=2.2.3,<3",
   "pyarrow>=19,<23",
-  "duckdb>=1.4,<2",
+  "duckdb>=1.4,<3",
 ]
 
 [project.optional-dependencies]
