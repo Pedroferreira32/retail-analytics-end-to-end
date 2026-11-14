@@ -14,10 +14,11 @@
   },
   "external_status": {
     "github_actions": "passed_linux_3.11_3.12_windows_3.12",
-    "bigquery_live": "pending_selected_project_and_credential_setup",
+    "bigquery_live": "passed_user_cloud_shell_cli_receipt",
     "powerbi_desktop": "pending_windows_runtime",
     "powerbi_service": "pending_account_connection",
-    "olist_github_workflow": "passed_complete_real_dataset"
+    "olist_github_workflow": "passed_complete_real_dataset",
+    "bigquery_github_workflow": "pending_iam_wif_setup_and_execution"
   },
   "github_ci": {
     "run_id": 43615775359,
@@ -46,5 +47,29 @@
       "expires_at": "2026-11-21T17:40:03Z",
       "digest": "sha256:34fe103fbf1c16dfad7b127b6f8e3a69d2b34306baac0ea68d7356abf63f4f45"
     }
+  },
+  "latest_code_validation": {
+    "pipeline_version": "1.0.2",
+    "tests_passed": 69,
+    "coverage_percent": 96.67,
+    "checks": [
+      "ruff lint",
+      "wheel build",
+      "workflow YAML and publication shell syntax"
+    ],
+    "github_ci": {
+      "run_id": 43629084547,
+      "url": "https://github.com/Pedroferreira32/retail-analytics-end-to-end/actions/runs/43629084547",
+      "tested_commit": "7479c6cca6d5a48b71c730144f9b9301e9824232",
+      "status": "success"
+    }
+  },
+  "bigquery_cloud_execution": {
+    "evidence_file": "bigquery-cli-receipt.json",
+    "status": "published",
+    "project_id": "retail-analytics-514717",
+    "run_id": "20261114T185754-e310b30c",
+    "source": "user-provided Cloud Shell screenshot",
+    "direct_api_verification_from_this_environment": false
   }
 }

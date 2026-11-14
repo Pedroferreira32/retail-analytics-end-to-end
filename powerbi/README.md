@@ -36,6 +36,20 @@ First complete the cloud load in [docs/bigquery.md](../docs/bigquery.md). Set:
 
 M partitions select the BigQuery connector's project and dataset objects, then the named analytical table/view. The query definitions specify the connector's implementation 2.0. Authenticate in Desktop using an identity authorized for query jobs and reads. The project contains no embedded account credentials. The BigQuery M branch still requires live connector acceptance.
 
+### Parameters for the published Retail Analytics warehouse
+
+The live Cloud Shell load reported successful publication on 2026-11-14. In Windows Desktop, open **Transform data → Manage parameters** and set:
+
+| Parameter | Value |
+| --- | --- |
+| `DataSourceMode` | `BigQuery` |
+| `BillingProject` | `retail-analytics-514717` |
+| `BigQueryDataset` | `retail_analytics` |
+
+Authenticate the Google BigQuery connector with the Google identity authorized for this project, apply changes and refresh. `DataFolder` is unused in BigQuery mode. These deployment-specific values are documented rather than embedded into the portable project defaults.
+
+For a fixed release, `BigQueryDataset` can instead be `retail_analytics__20261114T185754_e310b30c`. The snapshot has the Sandbox's 60-day retention. See the [visible cloud publication receipt](../docs/evidence/bigquery-cli-receipt.json); Desktop refresh and DAX acceptance remain pending.
+
 ## Pages and measures
 
 | Page | Purpose | Main content |

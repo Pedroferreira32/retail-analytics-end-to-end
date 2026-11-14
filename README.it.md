@@ -41,7 +41,7 @@ python scripts/prepare_powerbi.py
 pytest --cov=retail_analytics --cov-report=term-missing
 ```
 
-L'ETL completo e le riconciliazioni sono stati eseguiti sui dati reali. I file Power BI sono stati controllati tramite schemi Microsoft e riferimenti al modello; l'aggiornamento in Desktop e l'esportazione PBIX devono ancora essere verificati su Windows. Il codice BigQuery è implementato e testato con un client simulato; la pubblicazione effettiva richiede un progetto GCP autorizzato. La pubblicazione Power BI Service richiede un account e un workspace collegati.
+L'ETL completo e le riconciliazioni sono stati eseguiti sui dati reali. La pubblicazione effettiva in BigQuery è riuscita nel progetto `retail-analytics-514717` tramite Cloud Shell: [schermata del risultato e undici conteggi riconciliati](docs/evidence/bigquery-cli-receipt.json). La configurazione IAM/WIF e la pubblicazione da GitHub Actions restano da completare. I file Power BI sono stati controllati tramite schemi Microsoft e riferimenti al modello; l'aggiornamento in Desktop e l'esportazione PBIX devono ancora essere verificati su Windows. La pubblicazione Power BI Service richiede un account e un workspace collegati.
 
 [Documentazione completa](README.md) · [Metriche](docs/metrics.md) · [Risultati e prove](docs/evidence/README.md) · [Power BI](powerbi/README.md) · [BigQuery](docs/bigquery.md)
 

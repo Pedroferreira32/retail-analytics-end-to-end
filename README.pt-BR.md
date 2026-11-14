@@ -63,7 +63,8 @@ Os dados originais não são modificados. Cada execução bem-sucedida gera uma 
 | --- | --- |
 | ETL, SQL, qualidade e reconciliação da base real completa | Executados localmente |
 | Testes, lint e empacotamento | Automatizados em CI |
-| BigQuery e autenticação WIF no GitHub Actions | Código implementado; execução real depende do projeto GCP autorizado |
+| Publicação real no BigQuery e reconciliação na nuvem | Concluídas no projeto `retail-analytics-514717`; [evidência do terminal e 11 contagens conferidas](docs/evidence/bigquery-cli-receipt.json) |
+| Publicação BigQuery pelo GitHub Actions com WIF | Workflow implementado; configuração IAM/WIF e execução na nuvem pelo GitHub ainda pendentes |
 | Metadados, relacionamentos e vínculos dos visuais Power BI | Validados automaticamente |
 | Atualização no Power BI Desktop e exportação PBIX | Dependem da validação no Desktop Windows |
 | Publicação no Power BI Service | Depende de conta/workspace conectado |

@@ -2,6 +2,12 @@
 
 The repository contains a working loader and cloud workflow. Live cloud execution requires a **user-selected GCP project**, an enabled BigQuery API and authorized credentials. No project is guessed and no cloud deployment is claimed from a local fake-client test.
 
+## Observed live publication
+
+On 2026-11-14, the user supplied a Cloud Shell screenshot showing `status: published` for `retail-analytics-514717.retail_analytics`. The selected snapshot is `retail_analytics__20261114T185754_e310b30c`, in `US`, with `fact_partitioning: none`. All 11 visible queried row counts match the validated local manifest; the receipt's validation label includes the six GMV totals and recorded payments.
+
+The [transcribed receipt](evidence/bigquery-cli-receipt.json) links to the original screenshot and states its scope. The complete publication JSON remains in the authenticated Cloud Shell run directory, and this environment has not independently queried the project. IAM/WIF publication from GitHub Actions and the Power BI connector refresh still require execution.
+
 ## Local authenticated deployment
 
 Install the project with the locked development dependencies (which include the optional BigQuery client), or use `pip install '.[bigquery]'` for the minimal cloud extra.

@@ -59,7 +59,8 @@ DuckDB is the local execution and verification target. BigQuery is the cloud war
 | Complete Olist dataset extraction, profiling and Python ETL | Executed and reconciled locally and in [GitHub Actions](https://github.com/Pedroferreira32/retail-analytics-end-to-end/actions/runs/43622267281) |
 | Dimensional model, Parquet/CSV exports and SQL marts | Executed on the complete dataset |
 | Unit/integration tests, coverage, lint and packaging | Automated in CI |
-| BigQuery loader, cloud reconciliation and WIF workflow | Implemented and tested with a fake client; live GCP deployment requires project access |
+| Live BigQuery warehouse and cloud reconciliation | Published in `retail-analytics-514717` via Cloud Shell; [CLI screenshot and 11 reconciled row counts](docs/evidence/bigquery-cli-receipt.json) |
+| BigQuery publication from GitHub Actions using WIF | Workflow implemented; IAM/WIF provisioning and hosted cloud execution remain pending |
 | Power BI PBIP/PBIR, M queries, model and DAX measures | Generated; JSON schemas and bindings checked |
 | Power BI Desktop refresh, DAX execution and PBIX export | Pending execution in Windows Desktop |
 | Power BI Service publication | Requires a connected account/workspace |

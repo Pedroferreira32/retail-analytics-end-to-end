@@ -11,8 +11,10 @@ This directory contains **real Olist aggregate results**, not synthetic demonstr
 | `analysis.json` | Results from the four inspectable analytical SQL queries |
 | `monthly_sales.csv` | Aggregate monthly sales, delivery and review indicators |
 | `state_sales.csv` | Delivered merchandise GMV by customer state |
+| `bigquery-cli-receipt.json` | Explicit transcription of the visible live Cloud Shell publication receipt, with all 11 queried counts and provenance |
+| `../images/bigquery-publication.png` | Original user-supplied screenshot showing `status: published`, snapshot, queried counts and retention |
 
-The local evidence does not claim a live BigQuery deployment or a successful Power BI Desktop refresh. Those are separate acceptance gates in [publication.md](../publication.md).
+Live BigQuery publication was observed on 2026-11-14 through the user's Cloud Shell screenshot. The visible receipt reports all 11 SQL counts, six GMV totals and payments validated before publication. The screenshot's job list is cropped, so the transcription does not replace the complete `bigquery_publication.json` in Cloud Shell. This environment has not independently queried the GCP project. A Power BI Desktop refresh and Service publication remain separate acceptance gates in [publication.md](../publication.md).
 
 ## Rebuild
 
@@ -22,4 +24,4 @@ retail run --raw-dir data/raw --output-dir data/processed --source-kind olist
 python scripts/publish_evidence.py
 ```
 
-The generated figures in `docs/images/` are precise matplotlib exports from this validated run. They are not screenshots of Power BI. The full purchase interval is 2016-09-04 through 2018-10-17; months at the dataset edges are incomplete/sparse. Read the [metric contract](../metrics.md) before interpreting changes.
+The analytical figures in `docs/images/` are precise matplotlib exports from this validated run. `bigquery-publication.png` is the actual Cloud Shell screenshot; none of these images is a Power BI screenshot. The full purchase interval is 2016-09-04 through 2018-10-17; months at the dataset edges are incomplete/sparse. Read the [metric contract](../metrics.md) before interpreting changes.

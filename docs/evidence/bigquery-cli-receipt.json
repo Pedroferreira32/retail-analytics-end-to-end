@@ -1,0 +1,34 @@
+{
+  "evidence_type": "transcription_of_user_supplied_cli_screenshot",
+  "observed_on": "2026-11-14",
+  "screenshot": "../images/bigquery-publication.png",
+  "screenshot_sha256": "b220779f86a803dc351583c588949212af12f4482e5c2da58a09f4e63dc3220b",
+  "direct_api_verification_from_this_environment": false,
+  "publication": {
+    "status": "published",
+    "run_id": "20261114T185754-e310b30c",
+    "canonical_dataset": "retail-analytics-514717.retail_analytics",
+    "snapshot_dataset": "retail-analytics-514717.retail_analytics__20261114T185754_e310b30c",
+    "location": "US",
+    "fact_partitioning": "none",
+    "row_counts": {
+      "dim_customers": 99441,
+      "dim_sellers": 3095,
+      "dim_products": 32951,
+      "dim_date": 774,
+      "fct_orders": 99441,
+      "fct_order_items": 112650,
+      "fct_payments": 103886,
+      "mart_monthly_sales": 25,
+      "mart_category_sales": 1273,
+      "mart_state_sales": 556,
+      "mart_customer_rfm": 93358
+    },
+    "default_table_expiration_ms": 5184000000,
+    "default_partition_expiration_ms": 5184000000,
+    "validation": "row counts, six GMV totals, payments"
+  },
+  "complete_receipt_relative_path_in_cloud_shell": "data/processed/runs/20261114T185754-e310b30c/bigquery_publication.json",
+  "complete_receipt_archived_in_repository": false,
+  "scope": "The screenshot shows publication status, identifiers, all eleven queried row counts, retention settings and validation label. The job list is cropped; this transcription is not a replacement for the complete publication receipt."
+}

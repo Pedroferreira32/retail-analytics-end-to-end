@@ -41,7 +41,7 @@ python scripts/prepare_powerbi.py
 pytest --cov=retail_analytics --cov-report=term-missing
 ```
 
-El ETL completo y las conciliaciones se ejecutaron con datos reales. Los archivos de Power BI pasaron las comprobaciones de esquemas Microsoft y referencias al modelo; todavía falta validar la actualización en Desktop y exportar un PBIX real en Windows. El cargador BigQuery está implementado y probado con un cliente simulado; la carga real requiere un proyecto GCP autorizado. La publicación en Power BI Service requiere una cuenta y un espacio de trabajo conectados.
+El ETL completo y las conciliaciones se ejecutaron con datos reales. La publicación real en BigQuery terminó correctamente en `retail-analytics-514717` mediante Cloud Shell: [captura del resultado y once recuentos reconciliados](docs/evidence/bigquery-cli-receipt.json). La autenticación IAM/WIF y la publicación desde GitHub Actions siguen pendientes. Los archivos de Power BI pasaron las comprobaciones de esquemas Microsoft y referencias al modelo; todavía falta validar la actualización en Desktop y exportar un PBIX real en Windows. La publicación en Power BI Service requiere una cuenta y un espacio de trabajo conectados.
 
 [Documentación completa](README.md) · [Métricas](docs/metrics.md) · [Evidencias](docs/evidence/README.md) · [Power BI](powerbi/README.md) · [BigQuery](docs/bigquery.md)
 
