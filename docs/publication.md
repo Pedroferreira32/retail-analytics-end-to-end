@@ -9,6 +9,7 @@ The GitHub code publication, live BigQuery warehouse and Power BI report publica
 - [x] Complete real-source ETL, dimensional model, SQL marts and reconciliation.
 - [x] Meaningful synthetic regression tests with an 80% minimum coverage gate.
 - [x] Linux/Windows CI and manual full-source/cloud workflows.
+- [x] Complete real Olist execution reproduced successfully on GitHub Actions; [execution evidence](evidence/validation.json).
 - [x] Power BI semantic model, four-page report and 20 DAX measures.
 - [x] Offline Microsoft-schema and visual/model-reference checks.
 - [x] Inspectable real-source aggregate evidence and precise exported charts.
@@ -28,8 +29,8 @@ Do not mark these items complete solely because metadata was generated or an API
 
 ## Suggested next working session
 
-1. Open the GitHub Actions CI run and check all matrix jobs.
-2. Run the manual `Olist full dataset` workflow to independently reproduce real-source evidence on a hosted runner.
-3. Configure the `bigquery` environment and project IAM/WIF using [bigquery.md](bigquery.md).
-4. Validate the Desktop project using [powerbi/README.md](../powerbi/README.md).
-5. Add cloud job evidence and genuine report screenshots; update the status table and create a tagged release once external acceptance is complete.
+1. Configure the `bigquery` environment and project IAM/WIF using [bigquery.md](bigquery.md).
+2. Validate the Desktop project using [powerbi/README.md](../powerbi/README.md).
+3. Add cloud job evidence and genuine report screenshots; update the status table and create a tagged release once external acceptance is complete.
+
+CI passed on Linux and Windows. The complete [Olist workflow run](https://github.com/Pedroferreira32/retail-analytics-end-to-end/actions/runs/43622267281) also passed: original download, full ETL, reconciliation, aggregate evidence, Power BI data preparation and artifact upload. The generated artifact has seven-day retention; the committed code and source fingerprints remain the reproducible long-term record.

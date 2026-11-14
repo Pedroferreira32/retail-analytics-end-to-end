@@ -13,9 +13,38 @@
     "wheel_build": "passed"
   },
   "external_status": {
-    "github_actions": "pending_first_run",
-    "bigquery_live": "pending_selected_project_and_authorized_credentials",
+    "github_actions": "passed_linux_3.11_3.12_windows_3.12",
+    "bigquery_live": "pending_selected_project_and_credential_setup",
     "powerbi_desktop": "pending_windows_runtime",
-    "powerbi_service": "pending_account_connection"
+    "powerbi_service": "pending_account_connection",
+    "olist_github_workflow": "passed_complete_real_dataset"
+  },
+  "github_ci": {
+    "run_id": 43615775359,
+    "url": "https://github.com/Pedroferreira32/retail-analytics-end-to-end/actions/runs/43615775359",
+    "tested_commit": "ebb247d67e1ef6bc8752a67942b471d81a203f1f",
+    "matrix": [
+      "ubuntu-latest / Python 3.11",
+      "ubuntu-latest / Python 3.12",
+      "windows-latest / Python 3.12"
+    ],
+    "status": "success"
+  },
+  "olist_github_execution": {
+    "run_id": 43622267281,
+    "url": "https://github.com/Pedroferreira32/retail-analytics-end-to-end/actions/runs/43622267281",
+    "tested_commit": "ebb247d67e1ef6bc8752a67942b471d81a203f1f",
+    "pipeline_run_id": "20261114T173954-e42717ba",
+    "status": "success",
+    "placed_orders": 99441,
+    "delivered_orders": 96478,
+    "gmv_cents": 1322149811,
+    "artifact": {
+      "id": 14125065138,
+      "name": "olist-validated-run",
+      "size_in_bytes": 137050243,
+      "expires_at": "2026-11-21T17:40:03Z",
+      "digest": "sha256:34fe103fbf1c16dfad7b127b6f8e3a69d2b34306baac0ea68d7356abf63f4f45"
+    }
   }
 }

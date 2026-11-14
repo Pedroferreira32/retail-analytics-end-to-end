@@ -56,7 +56,7 @@ DuckDB is the local execution and verification target. BigQuery is the cloud war
 
 | Component | Status |
 | --- | --- |
-| Complete Olist dataset extraction, profiling and Python ETL | Executed and reconciled locally |
+| Complete Olist dataset extraction, profiling and Python ETL | Executed and reconciled locally and in [GitHub Actions](https://github.com/Pedroferreira32/retail-analytics-end-to-end/actions/runs/43622267281) |
 | Dimensional model, Parquet/CSV exports and SQL marts | Executed on the complete dataset |
 | Unit/integration tests, coverage, lint and packaging | Automated in CI |
 | BigQuery loader, cloud reconciliation and WIF workflow | Implemented and tested with a fake client; live GCP deployment requires project access |
