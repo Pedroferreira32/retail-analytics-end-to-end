@@ -1,0 +1,21 @@
+{
+  "local_validation_date": "2026-11-14",
+  "python": "3.12",
+  "tests_passed": 60,
+  "coverage_percent": 94.95614035087719,
+  "complete_olist_run_id": "20261114T162515-29c2dec8",
+  "checks": {
+    "full_source_etl": "passed",
+    "ten_local_reconciliations": "passed",
+    "ruff_lint": "passed",
+    "ruff_format": "passed",
+    "powerbi_schemas_and_bindings": "passed",
+    "wheel_build": "passed"
+  },
+  "external_status": {
+    "github_actions": "pending_first_run",
+    "bigquery_live": "pending_selected_project_and_authorized_credentials",
+    "powerbi_desktop": "pending_windows_runtime",
+    "powerbi_service": "pending_account_connection"
+  }
+}

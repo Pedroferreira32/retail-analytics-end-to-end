@@ -1,0 +1,98 @@
+{
+  "run_id": "20261114T162515-29c2dec8",
+  "created_at_utc": "2026-11-14T16:25:20.690467+00:00",
+  "pipeline_version": "1.0.0",
+  "source_kind": "olist",
+  "source_url": "https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce",
+  "sources": {
+    "customers": {
+      "filename": "olist_customers_dataset.csv",
+      "sha256": "983a422239e1712ded753b3bf9ecf47dc73f144d306029dcfa99e70a226883d2",
+      "rows": 99441,
+      "bytes": 9033957,
+      "extra_columns": []
+    },
+    "orders": {
+      "filename": "olist_orders_dataset.csv",
+      "sha256": "8df58ef3d2d7e9944010f7beecd9b75367f5588ec6e3c91cec19ae3345ef9ecf",
+      "rows": 99441,
+      "bytes": 17654914,
+      "extra_columns": []
+    },
+    "items": {
+      "filename": "olist_order_items_dataset.csv",
+      "sha256": "0bc4d068c4fe38cbb01bd90e8746e3c613fe7b4baef75fab7b0e329701c3e279",
+      "rows": 112650,
+      "bytes": 15438671,
+      "extra_columns": []
+    },
+    "payments": {
+      "filename": "olist_order_payments_dataset.csv",
+      "sha256": "4f713964f2815dbbaa40b9488268c55aac3627bfce5aa96cf58d1f3616de3cc0",
+      "rows": 103886,
+      "bytes": 5777138,
+      "extra_columns": []
+    },
+    "reviews": {
+      "filename": "olist_order_reviews_dataset.csv",
+      "sha256": "012b61c7593e34f51fa614efdf802b9c7056ce6aae5307ddb93236e7cfc797d7",
+      "rows": 99224,
+      "bytes": 14451670,
+      "extra_columns": []
+    },
+    "products": {
+      "filename": "olist_products_dataset.csv",
+      "sha256": "3e6569628a17fbc75fd206ee357b59e20364b9afa90f5b6cd5b4d624c58aa9cc",
+      "rows": 32951,
+      "bytes": 2379446,
+      "extra_columns": []
+    },
+    "sellers": {
+      "filename": "olist_sellers_dataset.csv",
+      "sha256": "1f643d2b950373b85735e7794b20986f528d7a000432e7c6f9bcbb44d0846a0e",
+      "rows": 3095,
+      "bytes": 174703,
+      "extra_columns": []
+    },
+    "translation": {
+      "filename": "product_category_name_translation.csv",
+      "sha256": "a81f0d1f27b27e7293f761bc79e3ce8f348ee39c4b3ed3e49bde38f478586278",
+      "rows": 71,
+      "bytes": 2613,
+      "extra_columns": []
+    },
+    "geolocation": {
+      "filename": "olist_geolocation_dataset.csv",
+      "sha256": "b514f6fc991b9566aeba02aa5d67e2c3630f034b60a0e05aa0d082a3b66d88d6",
+      "rows": 1000163,
+      "bytes": 61273883,
+      "extra_columns": []
+    }
+  },
+  "output_rows": {
+    "dim_customers": 99441,
+    "dim_sellers": 3095,
+    "dim_products": 32951,
+    "dim_date": 774,
+    "fct_orders": 99441,
+    "fct_order_items": 112650,
+    "fct_payments": 103886,
+    "mart_monthly_sales": 25,
+    "mart_category_sales": 1273,
+    "mart_state_sales": 556,
+    "mart_customer_rfm": 93358
+  },
+  "parquet_sha256": {
+    "dim_customers": "821a8e0cfb06f1b513cfcdc0a96bc5ac93264c7bca7f08faa558940653103180",
+    "dim_sellers": "e363c1da6f0c518ed334b893b714be04e99d2508945e8242f76dc2b82d2c585e",
+    "dim_products": "5b4ba77df2557b9a0e4272944fceb53e38854a060d30944ce56305528b68858f",
+    "dim_date": "ba1577d9033c5acabc87fc1554d7fe0fb9813f8bad31040421ebe9fe1e7d8ce1",
+    "fct_orders": "cdff7deabac37074fed58611db86867a5cb7c92ce76e225a767ba2a738390939",
+    "fct_order_items": "46155433053329286d39ff9175b49547f1f22d81a45cebe46ca29ee90eb01774",
+    "fct_payments": "53119000137250d6c44b1a467d2e52b5ee1edce32a39ce0fbfaf037753054dab",
+    "mart_monthly_sales": "86cffdad0a8725e71ebf3ac531c2844ff27a10b67ecbb892774ff7b93831025f",
+    "mart_category_sales": "75e605f6cba0ba9d8e393b9a43737f4940ddb81e701be8d39e69bce075af9464",
+    "mart_state_sales": "75efa93a358abcc1adc5d1b20357bd732e72dac3b2a4bb44c9adad25bbcd1a0f",
+    "mart_customer_rfm": "7def80e5a4a9321524451d8eac867009d1a46f2ad1dbfab0b74012b1c9faa0e4"
+  }
+}

@@ -1,0 +1,38 @@
+name: Olist full dataset
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.lock
+      - run: |
+          python -m pip install -r requirements-dev.lock
+          python -m pip install --no-deps -e .
+      - run: retail download --raw-dir data/raw
+      - run: retail run --raw-dir data/raw --output-dir data/processed --source-kind olist
+      - run: python scripts/publish_evidence.py
+      - run: python scripts/prepare_powerbi.py
+      - name: Include source attribution with derived data
+        run: cp DATA_LICENSE.md data/processed/DATA_LICENSE.md
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: olist-validated-run
+          retention-days: 7
+          path: |
+            data/processed/
+            docs/evidence/
+            powerbi/data/
+            DATA_LICENSE.md
+

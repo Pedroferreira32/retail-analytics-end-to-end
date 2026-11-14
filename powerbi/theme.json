@@ -1,0 +1,22 @@
+{
+  "name": "Retail Analytics",
+  "dataColors": [
+    "#176B87",
+    "#E7A33E",
+    "#518F76",
+    "#CC6B5A"
+  ],
+  "background": "#F3F6F8",
+  "foreground": "#172B3A",
+  "tableAccent": "#176B87",
+  "textClasses": {
+    "label": {
+      "fontFace": "Segoe UI",
+      "fontSize": 11
+    },
+    "title": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 14
+    }
+  }
+}

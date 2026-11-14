@@ -1,0 +1,141 @@
+{
+  "01_executive_overview": [
+    {
+      "placed_orders": 99441,
+      "delivered_orders": 96478,
+      "gmv_brl": 13221498.11,
+      "avg_ticket_brl": 137.0415857501,
+      "average_review": 4.1559082561,
+      "late_delivery_rate": 0.0677309008
+    }
+  ],
+  "02_payment_reconciliation": [
+    {
+      "order_status": "delivered",
+      "orders": 96478,
+      "item_plus_freight_cents": 1541977375,
+      "recorded_payment_cents": 1542246177,
+      "difference_cents": 268802,
+      "orders_over_one_cent": 300
+    },
+    {
+      "order_status": "shipped",
+      "orders": 1107,
+      "item_plus_freight_cents": 17712934,
+      "recorded_payment_cents": 17721396,
+      "difference_cents": 8462,
+      "orders_over_one_cent": 3
+    },
+    {
+      "order_status": "canceled",
+      "orders": 625,
+      "item_plus_freight_cents": 10588572,
+      "recorded_payment_cents": 14325560,
+      "difference_cents": 3736988,
+      "orders_over_one_cent": 163
+    },
+    {
+      "order_status": "unavailable",
+      "orders": 609,
+      "item_plus_freight_cents": 214049,
+      "recorded_payment_cents": 12647951,
+      "difference_cents": 12433902,
+      "orders_over_one_cent": 603
+    },
+    {
+      "order_status": "invoiced",
+      "orders": 314,
+      "item_plus_freight_cents": 6898875,
+      "recorded_payment_cents": 6913799,
+      "difference_cents": 14924,
+      "orders_over_one_cent": 2
+    },
+    {
+      "order_status": "processing",
+      "orders": 301,
+      "item_plus_freight_cents": 6939411,
+      "recorded_payment_cents": 6939411,
+      "difference_cents": 0,
+      "orders_over_one_cent": 0
+    },
+    {
+      "order_status": "created",
+      "orders": 5,
+      "item_plus_freight_cents": 0,
+      "recorded_payment_cents": 68810,
+      "difference_cents": 68810,
+      "orders_over_one_cent": 5
+    },
+    {
+      "order_status": "approved",
+      "orders": 2,
+      "item_plus_freight_cents": 24108,
+      "recorded_payment_cents": 24108,
+      "difference_cents": 0,
+      "orders_over_one_cent": 0
+    }
+  ],
+  "03_delivery_and_reviews": [
+    {
+      "is_late": false,
+      "observed_deliveries": 89936,
+      "average_review": 4.2903860559,
+      "reviewed_orders": 89443,
+      "average_delivery_days": 11.0040474173
+    },
+    {
+      "is_late": true,
+      "observed_deliveries": 6534,
+      "average_review": 2.2704905187,
+      "reviewed_orders": 6381,
+      "average_delivery_days": 33.9502900108
+    }
+  ],
+  "04_repeat_customers": [
+    {
+      "frequency_orders": 1,
+      "customers": 90557,
+      "gmv_brl": 12493089.36
+    },
+    {
+      "frequency_orders": 2,
+      "customers": 2573,
+      "gmv_brl": 631274.9
+    },
+    {
+      "frequency_orders": 3,
+      "customers": 181,
+      "gmv_brl": 65974.42
+    },
+    {
+      "frequency_orders": 4,
+      "customers": 28,
+      "gmv_brl": 18946.73
+    },
+    {
+      "frequency_orders": 5,
+      "customers": 9,
+      "gmv_brl": 5616.54
+    },
+    {
+      "frequency_orders": 6,
+      "customers": 5,
+      "gmv_brl": 2600.66
+    },
+    {
+      "frequency_orders": 7,
+      "customers": 3,
+      "gmv_brl": 2280.02
+    },
+    {
+      "frequency_orders": 9,
+      "customers": 1,
+      "gmv_brl": 1000.85
+    },
+    {
+      "frequency_orders": 15,
+      "customers": 1,
+      "gmv_brl": 714.63
+    }
+  ]
+}

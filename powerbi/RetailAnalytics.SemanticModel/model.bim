@@ -1,0 +1,996 @@
+{
+  "name": "RetailAnalytics",
+  "compatibilityLevel": 1600,
+  "model": {
+    "culture": "pt-BR",
+    "defaultPowerBIDataSourceVersion": "powerBI_V3",
+    "dataAccessOptions": {
+      "legacyRedirects": true,
+      "returnErrorValuesAsNull": false
+    },
+    "tables": [
+      {
+        "name": "dim_customers",
+        "columns": [
+          {
+            "name": "customer_id",
+            "dataType": "string",
+            "sourceColumn": "customer_id",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "customer_unique_id",
+            "dataType": "string",
+            "sourceColumn": "customer_unique_id",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "customer_zip_code_prefix",
+            "dataType": "string",
+            "sourceColumn": "customer_zip_code_prefix",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "customer_city",
+            "dataType": "string",
+            "sourceColumn": "customer_city",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "customer_state",
+            "dataType": "string",
+            "sourceColumn": "customer_state",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "latitude",
+            "dataType": "double",
+            "sourceColumn": "latitude",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "longitude",
+            "dataType": "double",
+            "sourceColumn": "longitude",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "dim_customers",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Raw = if DataSourceMode = \"BigQuery\" then",
+                "        let",
+                "            Projects = GoogleBigQuery.Database([BillingProject=BillingProject, Implementation=\"2.0\"]),",
+                "            Project = Projects{[Name=BillingProject]}[Data],",
+                "            Dataset = Project{[Name=BigQueryDataset, Kind=\"Schema\"]}[Data]",
+                "        in Dataset{[Name=\"dim_customers\"]}[Data]",
+                "    else",
+                "        Table.PromoteHeaders(Csv.Document(File.Contents(DataFolder & \"/dim_customers.csv\"),",
+                "            [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]), [PromoteAllScalars=true]),",
+                "    EmptyToNull = Table.ReplaceValue(Raw, \"\", null, Replacer.ReplaceValue, Table.ColumnNames(Raw)),",
+                "    Typed = Table.TransformColumnTypes(EmptyToNull, {{\"customer_id\", type text}, {\"customer_unique_id\", type text}, {\"customer_zip_code_prefix\", type text}, {\"customer_city\", type text}, {\"customer_state\", type text}, {\"latitude\", type number}, {\"longitude\", type number}}, \"en-US\")",
+                "in Typed"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_sellers",
+        "columns": [
+          {
+            "name": "seller_id",
+            "dataType": "string",
+            "sourceColumn": "seller_id",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "seller_zip_code_prefix",
+            "dataType": "string",
+            "sourceColumn": "seller_zip_code_prefix",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "seller_city",
+            "dataType": "string",
+            "sourceColumn": "seller_city",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "seller_state",
+            "dataType": "string",
+            "sourceColumn": "seller_state",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "latitude",
+            "dataType": "double",
+            "sourceColumn": "latitude",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "longitude",
+            "dataType": "double",
+            "sourceColumn": "longitude",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "dim_sellers",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Raw = if DataSourceMode = \"BigQuery\" then",
+                "        let",
+                "            Projects = GoogleBigQuery.Database([BillingProject=BillingProject, Implementation=\"2.0\"]),",
+                "            Project = Projects{[Name=BillingProject]}[Data],",
+                "            Dataset = Project{[Name=BigQueryDataset, Kind=\"Schema\"]}[Data]",
+                "        in Dataset{[Name=\"dim_sellers\"]}[Data]",
+                "    else",
+                "        Table.PromoteHeaders(Csv.Document(File.Contents(DataFolder & \"/dim_sellers.csv\"),",
+                "            [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]), [PromoteAllScalars=true]),",
+                "    EmptyToNull = Table.ReplaceValue(Raw, \"\", null, Replacer.ReplaceValue, Table.ColumnNames(Raw)),",
+                "    Typed = Table.TransformColumnTypes(EmptyToNull, {{\"seller_id\", type text}, {\"seller_zip_code_prefix\", type text}, {\"seller_city\", type text}, {\"seller_state\", type text}, {\"latitude\", type number}, {\"longitude\", type number}}, \"en-US\")",
+                "in Typed"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_products",
+        "columns": [
+          {
+            "name": "product_id",
+            "dataType": "string",
+            "sourceColumn": "product_id",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "product_category_name",
+            "dataType": "string",
+            "sourceColumn": "product_category_name",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "product_name_lenght",
+            "dataType": "int64",
+            "sourceColumn": "product_name_lenght",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "product_description_lenght",
+            "dataType": "int64",
+            "sourceColumn": "product_description_lenght",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "product_photos_qty",
+            "dataType": "int64",
+            "sourceColumn": "product_photos_qty",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "product_weight_g",
+            "dataType": "int64",
+            "sourceColumn": "product_weight_g",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "product_length_cm",
+            "dataType": "int64",
+            "sourceColumn": "product_length_cm",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "product_height_cm",
+            "dataType": "int64",
+            "sourceColumn": "product_height_cm",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "product_width_cm",
+            "dataType": "int64",
+            "sourceColumn": "product_width_cm",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "product_category_name_english",
+            "dataType": "string",
+            "sourceColumn": "product_category_name_english",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "dim_products",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Raw = if DataSourceMode = \"BigQuery\" then",
+                "        let",
+                "            Projects = GoogleBigQuery.Database([BillingProject=BillingProject, Implementation=\"2.0\"]),",
+                "            Project = Projects{[Name=BillingProject]}[Data],",
+                "            Dataset = Project{[Name=BigQueryDataset, Kind=\"Schema\"]}[Data]",
+                "        in Dataset{[Name=\"dim_products\"]}[Data]",
+                "    else",
+                "        Table.PromoteHeaders(Csv.Document(File.Contents(DataFolder & \"/dim_products.csv\"),",
+                "            [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]), [PromoteAllScalars=true]),",
+                "    EmptyToNull = Table.ReplaceValue(Raw, \"\", null, Replacer.ReplaceValue, Table.ColumnNames(Raw)),",
+                "    Typed = Table.TransformColumnTypes(EmptyToNull, {{\"product_id\", type text}, {\"product_category_name\", type text}, {\"product_name_lenght\", Int64.Type}, {\"product_description_lenght\", Int64.Type}, {\"product_photos_qty\", Int64.Type}, {\"product_weight_g\", Int64.Type}, {\"product_length_cm\", Int64.Type}, {\"product_height_cm\", Int64.Type}, {\"product_width_cm\", Int64.Type}, {\"product_category_name_english\", type text}}, \"en-US\")",
+                "in Typed"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_date",
+        "columns": [
+          {
+            "name": "date",
+            "dataType": "dateTime",
+            "sourceColumn": "date",
+            "summarizeBy": "none",
+            "isKey": true,
+            "formatString": "yyyy-MM-dd"
+          },
+          {
+            "name": "date_key",
+            "dataType": "int64",
+            "sourceColumn": "date_key",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "year",
+            "dataType": "int64",
+            "sourceColumn": "year",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "month_number",
+            "dataType": "int64",
+            "sourceColumn": "month_number",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "year_month",
+            "dataType": "string",
+            "sourceColumn": "year_month",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "quarter",
+            "dataType": "int64",
+            "sourceColumn": "quarter",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "weekday_number",
+            "dataType": "int64",
+            "sourceColumn": "weekday_number",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "dim_date",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Raw = if DataSourceMode = \"BigQuery\" then",
+                "        let",
+                "            Projects = GoogleBigQuery.Database([BillingProject=BillingProject, Implementation=\"2.0\"]),",
+                "            Project = Projects{[Name=BillingProject]}[Data],",
+                "            Dataset = Project{[Name=BigQueryDataset, Kind=\"Schema\"]}[Data]",
+                "        in Dataset{[Name=\"dim_date\"]}[Data]",
+                "    else",
+                "        Table.PromoteHeaders(Csv.Document(File.Contents(DataFolder & \"/dim_date.csv\"),",
+                "            [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]), [PromoteAllScalars=true]),",
+                "    EmptyToNull = Table.ReplaceValue(Raw, \"\", null, Replacer.ReplaceValue, Table.ColumnNames(Raw)),",
+                "    Typed = Table.TransformColumnTypes(EmptyToNull, {{\"date\", type datetime}, {\"date_key\", Int64.Type}, {\"year\", Int64.Type}, {\"month_number\", Int64.Type}, {\"year_month\", type text}, {\"quarter\", Int64.Type}, {\"weekday_number\", Int64.Type}}, \"en-US\")",
+                "in Typed"
+              ]
+            }
+          }
+        ],
+        "dataCategory": "Time"
+      },
+      {
+        "name": "fct_orders",
+        "columns": [
+          {
+            "name": "order_id",
+            "dataType": "string",
+            "sourceColumn": "order_id",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "customer_id",
+            "dataType": "string",
+            "sourceColumn": "customer_id",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "order_status",
+            "dataType": "string",
+            "sourceColumn": "order_status",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "order_purchase_timestamp",
+            "dataType": "dateTime",
+            "sourceColumn": "order_purchase_timestamp",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "order_approved_at",
+            "dataType": "dateTime",
+            "sourceColumn": "order_approved_at",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "order_delivered_carrier_date",
+            "dataType": "dateTime",
+            "sourceColumn": "order_delivered_carrier_date",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "order_delivered_customer_date",
+            "dataType": "dateTime",
+            "sourceColumn": "order_delivered_customer_date",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "order_estimated_delivery_date",
+            "dataType": "dateTime",
+            "sourceColumn": "order_estimated_delivery_date",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "purchase_date",
+            "dataType": "dateTime",
+            "sourceColumn": "purchase_date",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "purchase_month",
+            "dataType": "string",
+            "sourceColumn": "purchase_month",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "date_key",
+            "dataType": "int64",
+            "sourceColumn": "date_key",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "is_delivered",
+            "dataType": "boolean",
+            "sourceColumn": "is_delivered",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "is_canceled",
+            "dataType": "boolean",
+            "sourceColumn": "is_canceled",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "item_count",
+            "dataType": "int64",
+            "sourceColumn": "item_count",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "merchandise_value_cents",
+            "dataType": "int64",
+            "sourceColumn": "merchandise_value_cents",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "freight_value_cents",
+            "dataType": "int64",
+            "sourceColumn": "freight_value_cents",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "payment_count",
+            "dataType": "int64",
+            "sourceColumn": "payment_count",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "payment_value_cents",
+            "dataType": "int64",
+            "sourceColumn": "payment_value_cents",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "review_id",
+            "dataType": "string",
+            "sourceColumn": "review_id",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "review_score",
+            "dataType": "int64",
+            "sourceColumn": "review_score",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "review_count",
+            "dataType": "int64",
+            "sourceColumn": "review_count",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "review_creation_date",
+            "dataType": "dateTime",
+            "sourceColumn": "review_creation_date",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "review_answer_timestamp",
+            "dataType": "dateTime",
+            "sourceColumn": "review_answer_timestamp",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "order_value_cents",
+            "dataType": "int64",
+            "sourceColumn": "order_value_cents",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "payment_difference_cents",
+            "dataType": "int64",
+            "sourceColumn": "payment_difference_cents",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "delivery_days",
+            "dataType": "double",
+            "sourceColumn": "delivery_days",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "delivery_observed",
+            "dataType": "boolean",
+            "sourceColumn": "delivery_observed",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "is_late",
+            "dataType": "boolean",
+            "sourceColumn": "is_late",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "is_eligible_gmv",
+            "dataType": "boolean",
+            "sourceColumn": "is_eligible_gmv",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "fct_orders",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Raw = if DataSourceMode = \"BigQuery\" then",
+                "        let",
+                "            Projects = GoogleBigQuery.Database([BillingProject=BillingProject, Implementation=\"2.0\"]),",
+                "            Project = Projects{[Name=BillingProject]}[Data],",
+                "            Dataset = Project{[Name=BigQueryDataset, Kind=\"Schema\"]}[Data]",
+                "        in Dataset{[Name=\"fct_orders\"]}[Data]",
+                "    else",
+                "        Table.PromoteHeaders(Csv.Document(File.Contents(DataFolder & \"/fct_orders.csv\"),",
+                "            [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]), [PromoteAllScalars=true]),",
+                "    EmptyToNull = Table.ReplaceValue(Raw, \"\", null, Replacer.ReplaceValue, Table.ColumnNames(Raw)),",
+                "    Typed = Table.TransformColumnTypes(EmptyToNull, {{\"order_id\", type text}, {\"customer_id\", type text}, {\"order_status\", type text}, {\"order_purchase_timestamp\", type datetime}, {\"order_approved_at\", type datetime}, {\"order_delivered_carrier_date\", type datetime}, {\"order_delivered_customer_date\", type datetime}, {\"order_estimated_delivery_date\", type datetime}, {\"purchase_date\", type datetime}, {\"purchase_month\", type text}, {\"date_key\", Int64.Type}, {\"is_delivered\", type logical}, {\"is_canceled\", type logical}, {\"item_count\", Int64.Type}, {\"merchandise_value_cents\", Int64.Type}, {\"freight_value_cents\", Int64.Type}, {\"payment_count\", Int64.Type}, {\"payment_value_cents\", Int64.Type}, {\"review_id\", type text}, {\"review_score\", Int64.Type}, {\"review_count\", Int64.Type}, {\"review_creation_date\", type datetime}, {\"review_answer_timestamp\", type datetime}, {\"order_value_cents\", Int64.Type}, {\"payment_difference_cents\", Int64.Type}, {\"delivery_days\", type number}, {\"delivery_observed\", type logical}, {\"is_late\", type logical}, {\"is_eligible_gmv\", type logical}}, \"en-US\")",
+                "in Typed"
+              ]
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "GMV entregue",
+            "expression": "CALCULATE(SUM(fct_order_items[price_cents]), KEEPFILTERS(fct_order_items[is_eligible_gmv] = TRUE())) / 100",
+            "formatString": "\"R$ \"#,0.00",
+            "description": "Valor das mercadorias de pedidos entregues; exclui frete. Não é receita da Olist.",
+            "displayFolder": "Retail KPIs"
+          },
+          {
+            "name": "Frete entregue",
+            "expression": "CALCULATE(SUM(fct_order_items[freight_value_cents]), KEEPFILTERS(fct_order_items[is_eligible_gmv] = TRUE())) / 100",
+            "formatString": "\"R$ \"#,0.00",
+            "description": "Frete associado aos itens entregues.",
+            "displayFolder": "Retail KPIs"
+          },
+          {
+            "name": "Pedidos realizados",
+            "expression": "VAR _HasItemFilter = ISCROSSFILTERED(dim_products) || ISCROSSFILTERED(dim_sellers)\nRETURN IF(_HasItemFilter,\n    CALCULATE(COUNTROWS(fct_orders), KEEPFILTERS(TREATAS(VALUES(fct_order_items[order_id]), fct_orders[order_id]))),\n    COUNTROWS(fct_orders))",
+            "formatString": "#,0",
+            "description": "Todos os status por data de compra.",
+            "displayFolder": "Retail KPIs"
+          },
+          {
+            "name": "Pedidos entregues",
+            "expression": "VAR _HasItemFilter = ISCROSSFILTERED(dim_products) || ISCROSSFILTERED(dim_sellers)\nRETURN IF(_HasItemFilter,\n    CALCULATE(CALCULATE(COUNTROWS(fct_orders), KEEPFILTERS(fct_orders[is_eligible_gmv] = TRUE())), KEEPFILTERS(TREATAS(VALUES(fct_order_items[order_id]), fct_orders[order_id]))),\n    CALCULATE(COUNTROWS(fct_orders), KEEPFILTERS(fct_orders[is_eligible_gmv] = TRUE())))",
+            "formatString": "#,0",
+            "description": "Um pedido entregue, independentemente de quantos itens ou pagamentos possui.",
+            "displayFolder": "Retail KPIs"
+          },
+          {
+            "name": "Ticket médio",
+            "expression": "DIVIDE([GMV entregue], [Pedidos entregues])",
+            "formatString": "\"R$ \"#,0.00",
+            "description": "GMV dividido por pedidos entregues no contexto selecionado.",
+            "displayFolder": "Retail KPIs"
+          },
+          {
+            "name": "Pedidos cancelados",
+            "expression": "VAR _HasItemFilter = ISCROSSFILTERED(dim_products) || ISCROSSFILTERED(dim_sellers)\nRETURN IF(_HasItemFilter,\n    CALCULATE(CALCULATE(COUNTROWS(fct_orders), KEEPFILTERS(fct_orders[order_status] = \"canceled\")), KEEPFILTERS(TREATAS(VALUES(fct_order_items[order_id]), fct_orders[order_id]))),\n    CALCULATE(COUNTROWS(fct_orders), KEEPFILTERS(fct_orders[order_status] = \"canceled\")))",
+            "formatString": "#,0",
+            "description": "Status canceled.",
+            "displayFolder": "Retail KPIs"
+          },
+          {
+            "name": "Taxa de cancelamento",
+            "expression": "DIVIDE([Pedidos cancelados], [Pedidos realizados])",
+            "formatString": "0.00%",
+            "description": "Pedidos cancelados divididos por todos os pedidos realizados.",
+            "displayFolder": "Retail KPIs"
+          },
+          {
+            "name": "Entregas observadas",
+            "expression": "VAR _HasItemFilter = ISCROSSFILTERED(dim_products) || ISCROSSFILTERED(dim_sellers)\nRETURN IF(_HasItemFilter,\n    CALCULATE(CALCULATE(COUNTROWS(fct_orders), KEEPFILTERS(fct_orders[delivery_observed] = TRUE())), KEEPFILTERS(TREATAS(VALUES(fct_order_items[order_id]), fct_orders[order_id]))),\n    CALCULATE(COUNTROWS(fct_orders), KEEPFILTERS(fct_orders[delivery_observed] = TRUE())))",
+            "formatString": "#,0",
+            "description": "Entregues com timestamps válidos e duração não negativa.",
+            "displayFolder": "Retail KPIs"
+          },
+          {
+            "name": "Entregas atrasadas",
+            "expression": "VAR _HasItemFilter = ISCROSSFILTERED(dim_products) || ISCROSSFILTERED(dim_sellers)\nRETURN IF(_HasItemFilter,\n    CALCULATE(CALCULATE(COUNTROWS(fct_orders), KEEPFILTERS(fct_orders[is_late] = TRUE())), KEEPFILTERS(TREATAS(VALUES(fct_order_items[order_id]), fct_orders[order_id]))),\n    CALCULATE(COUNTROWS(fct_orders), KEEPFILTERS(fct_orders[is_late] = TRUE())))",
+            "formatString": "#,0",
+            "description": "Após a data prometida.",
+            "displayFolder": "Retail KPIs"
+          },
+          {
+            "name": "Taxa de atraso",
+            "expression": "DIVIDE([Entregas atrasadas], [Entregas observadas])",
+            "formatString": "0.00%",
+            "description": "Denominador inclui somente entregas efetivamente observadas.",
+            "displayFolder": "Retail KPIs"
+          },
+          {
+            "name": "Prazo médio dias",
+            "expression": "VAR _HasItemFilter = ISCROSSFILTERED(dim_products) || ISCROSSFILTERED(dim_sellers)\nRETURN IF(_HasItemFilter,\n    CALCULATE(AVERAGE(fct_orders[delivery_days]), KEEPFILTERS(TREATAS(VALUES(fct_order_items[order_id]), fct_orders[order_id]))),\n    AVERAGE(fct_orders[delivery_days]))",
+            "formatString": "0.0",
+            "description": "Dias corridos entre compra e entrega; não é prazo de pedidos ainda abertos.",
+            "displayFolder": "Retail KPIs"
+          },
+          {
+            "name": "Nota média",
+            "expression": "VAR _HasItemFilter = ISCROSSFILTERED(dim_products) || ISCROSSFILTERED(dim_sellers)\nRETURN IF(_HasItemFilter,\n    CALCULATE(CALCULATE(AVERAGE(fct_orders[review_score]), KEEPFILTERS(fct_orders[is_eligible_gmv] = TRUE())), KEEPFILTERS(TREATAS(VALUES(fct_order_items[order_id]), fct_orders[order_id]))),\n    CALCULATE(AVERAGE(fct_orders[review_score]), KEEPFILTERS(fct_orders[is_eligible_gmv] = TRUE())))",
+            "formatString": "0.00",
+            "description": "Última avaliação por pedido entregue. Não é NPS.",
+            "displayFolder": "Retail KPIs"
+          },
+          {
+            "name": "Pedidos entregues avaliados",
+            "expression": "VAR _HasItemFilter = ISCROSSFILTERED(dim_products) || ISCROSSFILTERED(dim_sellers)\nRETURN IF(_HasItemFilter,\n    CALCULATE(CALCULATE(COUNT(fct_orders[review_score]), KEEPFILTERS(fct_orders[is_eligible_gmv] = TRUE())), KEEPFILTERS(TREATAS(VALUES(fct_order_items[order_id]), fct_orders[order_id]))),\n    CALCULATE(COUNT(fct_orders[review_score]), KEEPFILTERS(fct_orders[is_eligible_gmv] = TRUE())))",
+            "formatString": "#,0",
+            "description": "Pedidos entregues com nota preenchida.",
+            "displayFolder": "Retail KPIs"
+          },
+          {
+            "name": "Cobertura de avaliação",
+            "expression": "DIVIDE([Pedidos entregues avaliados], [Pedidos entregues])",
+            "formatString": "0.0%",
+            "description": "Cobertura entre pedidos entregues; não é a nota média.",
+            "displayFolder": "Retail KPIs"
+          },
+          {
+            "name": "Pagamentos registrados",
+            "expression": "SUM(fct_payments[payment_value_cents]) / 100",
+            "formatString": "\"R$ \"#,0.00",
+            "description": "Todos os status; não representa receita reconhecida nem liquidação bancária.",
+            "displayFolder": "Retail KPIs"
+          },
+          {
+            "name": "Diferença de pagamentos",
+            "expression": "SUM(fct_orders[payment_difference_cents]) / 100",
+            "formatString": "\"R$ \"#,0.00",
+            "description": "Pagamento registrado menos itens e frete, em todos os status.",
+            "displayFolder": "Retail KPIs"
+          },
+          {
+            "name": "Pedidos com divergência",
+            "expression": "COUNTROWS(FILTER(fct_orders, ABS(fct_orders[payment_difference_cents]) > 1))",
+            "formatString": "#,0",
+            "description": "Diferença absoluta superior a um centavo, em todos os status.",
+            "displayFolder": "Retail KPIs"
+          },
+          {
+            "name": "Itens entregues",
+            "expression": "CALCULATE(COUNTROWS(fct_order_items), KEEPFILTERS(fct_order_items[is_eligible_gmv] = TRUE()))",
+            "formatString": "#,0",
+            "description": "Linhas de itens entregues.",
+            "displayFolder": "Retail KPIs"
+          },
+          {
+            "name": "GMV mês anterior",
+            "expression": "CALCULATE([GMV entregue], DATEADD(dim_date[date], -1, MONTH))",
+            "formatString": "\"R$ \"#,0.00",
+            "description": "Comparação por data de compra; interpretar meses de borda com cautela.",
+            "displayFolder": "Retail KPIs"
+          },
+          {
+            "name": "Variação GMV mensal",
+            "expression": "DIVIDE([GMV entregue] - [GMV mês anterior], [GMV mês anterior])",
+            "formatString": "0.0%",
+            "description": "Meses parciais/sem fechamento não permitem inferência de queda real.",
+            "displayFolder": "Retail KPIs"
+          }
+        ]
+      },
+      {
+        "name": "fct_order_items",
+        "columns": [
+          {
+            "name": "order_id",
+            "dataType": "string",
+            "sourceColumn": "order_id",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "order_item_id",
+            "dataType": "int64",
+            "sourceColumn": "order_item_id",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "product_id",
+            "dataType": "string",
+            "sourceColumn": "product_id",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "seller_id",
+            "dataType": "string",
+            "sourceColumn": "seller_id",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "shipping_limit_date",
+            "dataType": "dateTime",
+            "sourceColumn": "shipping_limit_date",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "price_cents",
+            "dataType": "int64",
+            "sourceColumn": "price_cents",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "freight_value_cents",
+            "dataType": "int64",
+            "sourceColumn": "freight_value_cents",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "customer_id",
+            "dataType": "string",
+            "sourceColumn": "customer_id",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "date_key",
+            "dataType": "int64",
+            "sourceColumn": "date_key",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "purchase_date",
+            "dataType": "dateTime",
+            "sourceColumn": "purchase_date",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "purchase_month",
+            "dataType": "string",
+            "sourceColumn": "purchase_month",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "order_status",
+            "dataType": "string",
+            "sourceColumn": "order_status",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "is_eligible_gmv",
+            "dataType": "boolean",
+            "sourceColumn": "is_eligible_gmv",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "fct_order_items",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Raw = if DataSourceMode = \"BigQuery\" then",
+                "        let",
+                "            Projects = GoogleBigQuery.Database([BillingProject=BillingProject, Implementation=\"2.0\"]),",
+                "            Project = Projects{[Name=BillingProject]}[Data],",
+                "            Dataset = Project{[Name=BigQueryDataset, Kind=\"Schema\"]}[Data]",
+                "        in Dataset{[Name=\"fct_order_items\"]}[Data]",
+                "    else",
+                "        Table.PromoteHeaders(Csv.Document(File.Contents(DataFolder & \"/fct_order_items.csv\"),",
+                "            [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]), [PromoteAllScalars=true]),",
+                "    EmptyToNull = Table.ReplaceValue(Raw, \"\", null, Replacer.ReplaceValue, Table.ColumnNames(Raw)),",
+                "    Typed = Table.TransformColumnTypes(EmptyToNull, {{\"order_id\", type text}, {\"order_item_id\", Int64.Type}, {\"product_id\", type text}, {\"seller_id\", type text}, {\"shipping_limit_date\", type datetime}, {\"price_cents\", Int64.Type}, {\"freight_value_cents\", Int64.Type}, {\"customer_id\", type text}, {\"date_key\", Int64.Type}, {\"purchase_date\", type datetime}, {\"purchase_month\", type text}, {\"order_status\", type text}, {\"is_eligible_gmv\", type logical}}, \"en-US\")",
+                "in Typed"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "fct_payments",
+        "columns": [
+          {
+            "name": "order_id",
+            "dataType": "string",
+            "sourceColumn": "order_id",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "payment_sequential",
+            "dataType": "int64",
+            "sourceColumn": "payment_sequential",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "payment_type",
+            "dataType": "string",
+            "sourceColumn": "payment_type",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "payment_installments",
+            "dataType": "int64",
+            "sourceColumn": "payment_installments",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "payment_value_cents",
+            "dataType": "int64",
+            "sourceColumn": "payment_value_cents",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "customer_id",
+            "dataType": "string",
+            "sourceColumn": "customer_id",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "date_key",
+            "dataType": "int64",
+            "sourceColumn": "date_key",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "purchase_date",
+            "dataType": "dateTime",
+            "sourceColumn": "purchase_date",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "purchase_month",
+            "dataType": "string",
+            "sourceColumn": "purchase_month",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "order_status",
+            "dataType": "string",
+            "sourceColumn": "order_status",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "is_eligible_gmv",
+            "dataType": "boolean",
+            "sourceColumn": "is_eligible_gmv",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "fct_payments",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Raw = if DataSourceMode = \"BigQuery\" then",
+                "        let",
+                "            Projects = GoogleBigQuery.Database([BillingProject=BillingProject, Implementation=\"2.0\"]),",
+                "            Project = Projects{[Name=BillingProject]}[Data],",
+                "            Dataset = Project{[Name=BigQueryDataset, Kind=\"Schema\"]}[Data]",
+                "        in Dataset{[Name=\"fct_payments\"]}[Data]",
+                "    else",
+                "        Table.PromoteHeaders(Csv.Document(File.Contents(DataFolder & \"/fct_payments.csv\"),",
+                "            [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.Csv]), [PromoteAllScalars=true]),",
+                "    EmptyToNull = Table.ReplaceValue(Raw, \"\", null, Replacer.ReplaceValue, Table.ColumnNames(Raw)),",
+                "    Typed = Table.TransformColumnTypes(EmptyToNull, {{\"order_id\", type text}, {\"payment_sequential\", Int64.Type}, {\"payment_type\", type text}, {\"payment_installments\", Int64.Type}, {\"payment_value_cents\", Int64.Type}, {\"customer_id\", type text}, {\"date_key\", Int64.Type}, {\"purchase_date\", type datetime}, {\"purchase_month\", type text}, {\"order_status\", type text}, {\"is_eligible_gmv\", type logical}}, \"en-US\")",
+                "in Typed"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "name": "fct_orders_dim_date",
+        "fromTable": "fct_orders",
+        "fromColumn": "date_key",
+        "toTable": "dim_date",
+        "toColumn": "date_key",
+        "fromCardinality": "many",
+        "toCardinality": "one",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "fct_orders_dim_customers",
+        "fromTable": "fct_orders",
+        "fromColumn": "customer_id",
+        "toTable": "dim_customers",
+        "toColumn": "customer_id",
+        "fromCardinality": "many",
+        "toCardinality": "one",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "fct_order_items_dim_date",
+        "fromTable": "fct_order_items",
+        "fromColumn": "date_key",
+        "toTable": "dim_date",
+        "toColumn": "date_key",
+        "fromCardinality": "many",
+        "toCardinality": "one",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "fct_order_items_dim_customers",
+        "fromTable": "fct_order_items",
+        "fromColumn": "customer_id",
+        "toTable": "dim_customers",
+        "toColumn": "customer_id",
+        "fromCardinality": "many",
+        "toCardinality": "one",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "fct_payments_dim_date",
+        "fromTable": "fct_payments",
+        "fromColumn": "date_key",
+        "toTable": "dim_date",
+        "toColumn": "date_key",
+        "fromCardinality": "many",
+        "toCardinality": "one",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "fct_payments_dim_customers",
+        "fromTable": "fct_payments",
+        "fromColumn": "customer_id",
+        "toTable": "dim_customers",
+        "toColumn": "customer_id",
+        "fromCardinality": "many",
+        "toCardinality": "one",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "fct_order_items_dim_products",
+        "fromTable": "fct_order_items",
+        "fromColumn": "product_id",
+        "toTable": "dim_products",
+        "toColumn": "product_id",
+        "fromCardinality": "many",
+        "toCardinality": "one",
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "fct_order_items_dim_sellers",
+        "fromTable": "fct_order_items",
+        "fromColumn": "seller_id",
+        "toTable": "dim_sellers",
+        "toColumn": "seller_id",
+        "fromCardinality": "many",
+        "toCardinality": "one",
+        "crossFilteringBehavior": "oneDirection"
+      }
+    ],
+    "expressions": [
+      {
+        "name": "DataFolder",
+        "kind": "m",
+        "expression": "\"C:\\RetailAnalytics\\powerbi\\data\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]"
+      },
+      {
+        "name": "DataSourceMode",
+        "kind": "m",
+        "expression": "\"CSV\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]"
+      },
+      {
+        "name": "BillingProject",
+        "kind": "m",
+        "expression": "\"your-project-id\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]"
+      },
+      {
+        "name": "BigQueryDataset",
+        "kind": "m",
+        "expression": "\"retail_analytics\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]"
+      }
+    ],
+    "annotations": [
+      {
+        "name": "PBI_TimeIntelligenceEnabled",
+        "value": "0"
+      }
+    ]
+  }
+}

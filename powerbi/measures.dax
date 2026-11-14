@@ -1,0 +1,103 @@
+// Valor das mercadorias de pedidos entregues; exclui frete. Não é receita da Olist.
+GMV entregue =
+CALCULATE(SUM(fct_order_items[price_cents]), KEEPFILTERS(fct_order_items[is_eligible_gmv] = TRUE())) / 100
+
+// Frete associado aos itens entregues.
+Frete entregue =
+CALCULATE(SUM(fct_order_items[freight_value_cents]), KEEPFILTERS(fct_order_items[is_eligible_gmv] = TRUE())) / 100
+
+// Todos os status por data de compra.
+Pedidos realizados =
+VAR _HasItemFilter = ISCROSSFILTERED(dim_products) || ISCROSSFILTERED(dim_sellers)
+RETURN IF(_HasItemFilter,
+    CALCULATE(COUNTROWS(fct_orders), KEEPFILTERS(TREATAS(VALUES(fct_order_items[order_id]), fct_orders[order_id]))),
+    COUNTROWS(fct_orders))
+
+// Um pedido entregue, independentemente de quantos itens ou pagamentos possui.
+Pedidos entregues =
+VAR _HasItemFilter = ISCROSSFILTERED(dim_products) || ISCROSSFILTERED(dim_sellers)
+RETURN IF(_HasItemFilter,
+    CALCULATE(CALCULATE(COUNTROWS(fct_orders), KEEPFILTERS(fct_orders[is_eligible_gmv] = TRUE())), KEEPFILTERS(TREATAS(VALUES(fct_order_items[order_id]), fct_orders[order_id]))),
+    CALCULATE(COUNTROWS(fct_orders), KEEPFILTERS(fct_orders[is_eligible_gmv] = TRUE())))
+
+// GMV dividido por pedidos entregues no contexto selecionado.
+Ticket médio =
+DIVIDE([GMV entregue], [Pedidos entregues])
+
+// Status canceled.
+Pedidos cancelados =
+VAR _HasItemFilter = ISCROSSFILTERED(dim_products) || ISCROSSFILTERED(dim_sellers)
+RETURN IF(_HasItemFilter,
+    CALCULATE(CALCULATE(COUNTROWS(fct_orders), KEEPFILTERS(fct_orders[order_status] = "canceled")), KEEPFILTERS(TREATAS(VALUES(fct_order_items[order_id]), fct_orders[order_id]))),
+    CALCULATE(COUNTROWS(fct_orders), KEEPFILTERS(fct_orders[order_status] = "canceled")))
+
+// Pedidos cancelados divididos por todos os pedidos realizados.
+Taxa de cancelamento =
+DIVIDE([Pedidos cancelados], [Pedidos realizados])
+
+// Entregues com timestamps válidos e duração não negativa.
+Entregas observadas =
+VAR _HasItemFilter = ISCROSSFILTERED(dim_products) || ISCROSSFILTERED(dim_sellers)
+RETURN IF(_HasItemFilter,
+    CALCULATE(CALCULATE(COUNTROWS(fct_orders), KEEPFILTERS(fct_orders[delivery_observed] = TRUE())), KEEPFILTERS(TREATAS(VALUES(fct_order_items[order_id]), fct_orders[order_id]))),
+    CALCULATE(COUNTROWS(fct_orders), KEEPFILTERS(fct_orders[delivery_observed] = TRUE())))
+
+// Após a data prometida.
+Entregas atrasadas =
+VAR _HasItemFilter = ISCROSSFILTERED(dim_products) || ISCROSSFILTERED(dim_sellers)
+RETURN IF(_HasItemFilter,
+    CALCULATE(CALCULATE(COUNTROWS(fct_orders), KEEPFILTERS(fct_orders[is_late] = TRUE())), KEEPFILTERS(TREATAS(VALUES(fct_order_items[order_id]), fct_orders[order_id]))),
+    CALCULATE(COUNTROWS(fct_orders), KEEPFILTERS(fct_orders[is_late] = TRUE())))
+
+// Denominador inclui somente entregas efetivamente observadas.
+Taxa de atraso =
+DIVIDE([Entregas atrasadas], [Entregas observadas])
+
+// Dias corridos entre compra e entrega; não é prazo de pedidos ainda abertos.
+Prazo médio dias =
+VAR _HasItemFilter = ISCROSSFILTERED(dim_products) || ISCROSSFILTERED(dim_sellers)
+RETURN IF(_HasItemFilter,
+    CALCULATE(AVERAGE(fct_orders[delivery_days]), KEEPFILTERS(TREATAS(VALUES(fct_order_items[order_id]), fct_orders[order_id]))),
+    AVERAGE(fct_orders[delivery_days]))
+
+// Última avaliação por pedido entregue. Não é NPS.
+Nota média =
+VAR _HasItemFilter = ISCROSSFILTERED(dim_products) || ISCROSSFILTERED(dim_sellers)
+RETURN IF(_HasItemFilter,
+    CALCULATE(CALCULATE(AVERAGE(fct_orders[review_score]), KEEPFILTERS(fct_orders[is_eligible_gmv] = TRUE())), KEEPFILTERS(TREATAS(VALUES(fct_order_items[order_id]), fct_orders[order_id]))),
+    CALCULATE(AVERAGE(fct_orders[review_score]), KEEPFILTERS(fct_orders[is_eligible_gmv] = TRUE())))
+
+// Pedidos entregues com nota preenchida.
+Pedidos entregues avaliados =
+VAR _HasItemFilter = ISCROSSFILTERED(dim_products) || ISCROSSFILTERED(dim_sellers)
+RETURN IF(_HasItemFilter,
+    CALCULATE(CALCULATE(COUNT(fct_orders[review_score]), KEEPFILTERS(fct_orders[is_eligible_gmv] = TRUE())), KEEPFILTERS(TREATAS(VALUES(fct_order_items[order_id]), fct_orders[order_id]))),
+    CALCULATE(COUNT(fct_orders[review_score]), KEEPFILTERS(fct_orders[is_eligible_gmv] = TRUE())))
+
+// Cobertura entre pedidos entregues; não é a nota média.
+Cobertura de avaliação =
+DIVIDE([Pedidos entregues avaliados], [Pedidos entregues])
+
+// Todos os status; não representa receita reconhecida nem liquidação bancária.
+Pagamentos registrados =
+SUM(fct_payments[payment_value_cents]) / 100
+
+// Pagamento registrado menos itens e frete, em todos os status.
+Diferença de pagamentos =
+SUM(fct_orders[payment_difference_cents]) / 100
+
+// Diferença absoluta superior a um centavo, em todos os status.
+Pedidos com divergência =
+COUNTROWS(FILTER(fct_orders, ABS(fct_orders[payment_difference_cents]) > 1))
+
+// Linhas de itens entregues.
+Itens entregues =
+CALCULATE(COUNTROWS(fct_order_items), KEEPFILTERS(fct_order_items[is_eligible_gmv] = TRUE()))
+
+// Comparação por data de compra; interpretar meses de borda com cautela.
+GMV mês anterior =
+CALCULATE([GMV entregue], DATEADD(dim_date[date], -1, MONTH))
+
+// Meses parciais/sem fechamento não permitem inferência de queda real.
+Variação GMV mensal =
+DIVIDE([GMV entregue] - [GMV mês anterior], [GMV mês anterior])

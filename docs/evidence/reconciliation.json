@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "checks": {
+    "order_key_unique": true,
+    "item_key_unique": true,
+    "items_to_orders": true,
+    "freight_to_orders": true,
+    "payments_to_orders": true,
+    "gmv_to_monthly": true,
+    "gmv_to_categories": true,
+    "gmv_to_states": true,
+    "gmv_to_rfm": true,
+    "delivered_to_monthly": true
+  },
+  "gmv_cents": 1322149811,
+  "source_merchandise_cents": 1359164370,
+  "source_payments_cents": 1600887212
+}

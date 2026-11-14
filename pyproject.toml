@@ -1,0 +1,50 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "retail-analytics"
+version = "1.0.0"
+description = "Olist retail analytics: reproducible Python ETL, SQL marts, BigQuery and Power BI."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "Pedro Aurélio Gonçalves Ferreira" }]
+dependencies = [
+  "pandas>=2.2.3,<3",
+  "pyarrow>=19,<23",
+  "duckdb>=1.4,<2",
+]
+
+[project.optional-dependencies]
+bigquery = ["google-cloud-bigquery>=3.38,<4"]
+dev = ["pytest>=8.3,<10", "pytest-cov>=6,<8", "ruff>=0.14,<0.15", "sqlglot>=28,<29", "jsonschema>=4.23,<5", "build>=1.3,<2", "matplotlib>=3.9,<4"]
+
+[project.scripts]
+retail = "retail_analytics.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/retail_analytics"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"sql" = "retail_analytics/sql"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = ["integration: pipeline and database integration tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.coverage.run]
+source = ["retail_analytics"]
+omit = ["*/__main__.py"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 80
