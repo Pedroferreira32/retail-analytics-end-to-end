@@ -56,7 +56,15 @@ def run_pipeline(raw_dir: Path, output_dir: Path, source_kind: str) -> Path:
         (stage / "csv").mkdir()
         output_rows, output_hashes = {}, {}
         for name, frame in {**model, **marts}.items():
-            frame.to_parquet(stage / "parquet" / f"{name}.parquet", index=False)
+            # BigQuery recognizes Parquet millisecond/microsecond timestamps, not
+            # Arrow's default nanoseconds. Refuse truncation and preserve naive times.
+            frame.to_parquet(
+                stage / "parquet" / f"{name}.parquet",
+                index=False,
+                engine="pyarrow",
+                coerce_timestamps="us",
+                allow_truncated_timestamps=False,
+            )
             frame.to_csv(stage / "csv" / f"{name}.csv", index=False, encoding="utf-8")
             output_rows[name] = len(frame)
             output_hashes[name] = sha256_file(stage / "parquet" / f"{name}.parquet")

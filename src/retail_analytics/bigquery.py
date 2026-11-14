@@ -9,6 +9,9 @@ import json
 import re
 from pathlib import Path
 
+import pyarrow as pa
+import pyarrow.parquet as pq
+
 from retail_analytics.extract import sha256_file
 from retail_analytics.pipeline import write_json
 from retail_analytics.warehouse import MARTS, MODEL_TABLES, render_mart
@@ -44,6 +47,25 @@ def publish(
     for name in MODEL_TABLES + MARTS:
         if sha256_file(run / "parquet" / f"{name}.parquet") != manifest["parquet_sha256"][name]:
             raise ValueError(f"Validated output was modified: {name}")
+    # Reject old/unsupported exports before creating a dataset or uploading files.
+    for name in MODEL_TABLES:
+        schema = pq.read_schema(run / "parquet" / f"{name}.parquet")
+        for field in schema:
+            if pa.types.is_timestamp(field.type) and field.type.unit not in {"ms", "us"}:
+                raise ValueError(
+                    f"Unsupported Parquet timestamp in {name}.{field.name}: {field.type}. "
+                    "Regenerate processed data with 'retail run' before publishing."
+                )
+        if name.startswith("fct_"):
+            index = schema.get_field_index("purchase_date")
+            if index < 0 or not (
+                pa.types.is_date(schema.field(index).type)
+                or pa.types.is_timestamp(schema.field(index).type)
+            ):
+                raise ValueError(
+                    f"{name}.purchase_date must be a Parquet date or supported timestamp. "
+                    "Regenerate processed data with 'retail run' before publishing."
+                )
     try:
         from google.cloud import bigquery
     except ImportError as exc:

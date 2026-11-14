@@ -32,7 +32,23 @@ Choose the location deliberately and keep it the same for canonical and snapshot
 
 The query cap defaults to **1 GiB per query** and can be changed with `--maximum-bytes-billed`. This is a query safety limit, not a guarantee of free operation or a budget across the entire workflow. Storage and any other platform charges follow the selected GCP account's billing configuration.
 
+Parquet timestamps are written at microsecond precision (`timestamp[us]`) with truncation disabled. The writer preserves timezone-naive source values and refuses any conversion that would lose submicrosecond data. BigQuery's Parquet loader supports millisecond/microsecond timestamps; a nanosecond export can be read as `INT64` and rejected as a partition key. Before any cloud writes, the loader checks the on-disk timestamp units and fact partition-column types.
+
 `purchase_date` is stored as a Parquet timestamp without an invented timezone. Verify the resulting BigQuery column type and partitioning during live acceptance. Do not reinterpret it as a UTC business timestamp without a documented source timezone decision.
+
+## Recover from an INT64 partition-column error
+
+If an earlier export fails with `The field specified for DAY partitioning can only be of type TIMESTAMP, DATETIME or DATE. The type found is: INT64`, update the code and regenerate the processed files. Reusing the original CSVs is sufficient; no new download or deletion is necessary. Run from the repository directory, replacing `YOUR_PROJECT_ID` with the selected project:
+
+```bash
+git pull --ff-only
+source .venv/bin/activate
+python -m pip install --no-deps -e .
+retail run --raw-dir data/raw --output-dir data/processed --source-kind olist
+retail bigquery --project YOUR_PROJECT_ID --dataset retail_analytics --location US
+```
+
+The new run gets a new manifest, output hashes and snapshot name. An incomplete snapshot from the previous failed load is not reused, and canonical views are only advanced after the new cloud validation passes.
 
 ## GitHub Actions with Workload Identity Federation
 
@@ -104,4 +120,4 @@ Snapshots are retained until deliberately removed. Review storage and retention 
 - [ ] Reporting identity can read the selected snapshot and create query jobs.
 - [ ] Publication job IDs and the snapshot are recorded.
 
-References: [batch loading](https://docs.cloud.google.com/bigquery/docs/batch-loading-data), [BigQuery authentication](https://docs.cloud.google.com/bigquery/docs/authentication), [GitHub OIDC authentication action](https://github.com/google-github-actions/auth).
+References: [batch loading](https://docs.cloud.google.com/bigquery/docs/batch-loading-data), [Parquet type conversion](https://docs.cloud.google.com/bigquery/docs/loading-data-cloud-storage-parquet#type_conversions), [Arrow timestamp coercion](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.write_table.html), [BigQuery authentication](https://docs.cloud.google.com/bigquery/docs/authentication), [GitHub OIDC authentication action](https://github.com/google-github-actions/auth).

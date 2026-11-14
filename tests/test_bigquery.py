@@ -1,9 +1,12 @@
 import json
 from types import SimpleNamespace
 
+import pyarrow as pa
+import pyarrow.parquet as pq
 import pytest
 
 from retail_analytics.bigquery import publish, validate_target
+from retail_analytics.extract import sha256_file
 
 
 class FakeJob:
@@ -79,6 +82,36 @@ def test_tampered_output_blocked(validated_run):
             allow_synthetic=True,
             client=FakeClient(validated_run),
         )
+
+
+@pytest.mark.parametrize(
+    "name,column,data_type",
+    [
+        ("dim_date", "date", pa.timestamp("ns")),
+        ("fct_orders", "purchase_date", pa.timestamp("ns")),
+        ("fct_orders", "purchase_date", pa.int64()),
+    ],
+)
+def test_incompatible_parquet_types_fail_before_cloud_writes(
+    validated_run, name, column, data_type
+):
+    # Reproduce a previously validated artifact, rather than a tampered-file error.
+    path = validated_run / "parquet" / f"{name}.parquet"
+    table = pq.read_table(path)
+    table = table.set_column(
+        table.schema.get_field_index(column), column, table[column].cast(data_type)
+    )
+    pq.write_table(table, path)
+    manifest_path = validated_run / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["parquet_sha256"][name] = sha256_file(path)
+    manifest_path.write_text(json.dumps(manifest))
+    client = FakeClient(validated_run)
+    with pytest.raises(ValueError, match="retail run"):
+        publish(validated_run, "demo-project", "retail", "US", allow_synthetic=True, client=client)
+    assert not client.datasets
+    assert not client.loads
+    assert not client.queries
 
 
 def test_cloud_snapshot_validates_before_promotion(validated_run):

@@ -3,6 +3,8 @@ import shutil
 
 import duckdb
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 import pytest
 import sqlglot
 
@@ -47,6 +49,40 @@ def test_repeat_run_has_identical_data(fixtures_dir, tmp_path):
             pd.read_parquet(file), pd.read_parquet(second / "parquet" / file.name)
         )
     assert (first / "summary.json").read_bytes() == (second / "summary.json").read_bytes()
+
+
+def test_exported_timestamps_use_bigquery_compatible_precision(validated_run, model):
+    timestamp_columns = 0
+    for name, expected in model.items():
+        table = pq.read_table(validated_run / "parquet" / f"{name}.parquet")
+        actual = table.to_pandas()
+        for field in table.schema:
+            if pa.types.is_timestamp(field.type):
+                timestamp_columns += 1
+                assert field.type == pa.timestamp("us"), f"{name}.{field.name}"
+                pd.testing.assert_series_equal(
+                    actual[field.name].astype(expected[field.name].dtype), expected[field.name]
+                )
+    assert timestamp_columns > 0
+
+
+def test_export_refuses_submicrosecond_precision_loss(fixtures_dir, tmp_path, monkeypatch):
+    from retail_analytics import pipeline
+
+    original = pipeline.build_model
+
+    def model_with_nanoseconds(tables):
+        model = original(tables)
+        model["fct_orders"].loc[0, "order_purchase_timestamp"] += pd.Timedelta(1, unit="ns")
+        return model
+
+    output = tmp_path / "processed"
+    first = run_pipeline(fixtures_dir, output, "synthetic")
+    monkeypatch.setattr(pipeline, "build_model", model_with_nanoseconds)
+    with pytest.raises(pa.ArrowInvalid, match="lose data"):
+        run_pipeline(fixtures_dir, output, "synthetic")
+    assert resolve_run(output) == first
+    assert not list((output / "runs").glob(".pending-*"))
 
 
 def test_failure_does_not_advance_latest(fixtures_dir, tmp_path):
