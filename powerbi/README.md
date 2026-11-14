@@ -23,6 +23,14 @@ python scripts/prepare_powerbi.py
 
 Local source data and Desktop caches remain ignored by Git. The placeholder `C:\RetailAnalytics\powerbi\data` is a parameter default; replace it with your own checkout location.
 
+## Recover an older project that does not open
+
+The initial generated report omitted `RetailAnalytics.Report/definition/version.json` and the Report/SemanticModel item identity files. Checking only the JSON files that existed did not detect this incomplete Desktop structure. The generator now emits PBIR format metadata (`version: 2.0.0`), item descriptors with distinct stable logical IDs, and pages metadata 1.1.0 with the active page. The validator requires these startup files before checking individual schemas.
+
+Download the updated repository ZIP, extract the complete archive into a new folder, and open the new `powerbi/RetailAnalytics.pbip`. The PBIP entry point is only a few hundred bytes; keep both `RetailAnalytics.Report` and `RetailAnalytics.SemanticModel` beside it. The corrected metadata must come from the new download, rather than an older extracted folder. `RetailAnalytics.Report/definition.pbir` is an alternative entry point.
+
+This correction is validated against the published Microsoft schemas and missing-file regression cases. It is not a claim that the Windows Desktop engine has run in this environment. If Desktop still does not load, capture the specific error or a recent trace using **File → Options and settings → Options → Diagnostics → Enable tracing**.
+
 ## Connect to BigQuery
 
 First complete the cloud load in [docs/bigquery.md](../docs/bigquery.md). Set:

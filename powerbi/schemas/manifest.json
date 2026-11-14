@@ -13,6 +13,9 @@
     "fabric/item/report/definition/visualContainer/2.4.0/schema.json": "c0c3392b48aaa185765ad4eb890aa582a2cf6ddaa52dfaa7c5fc04d163d7b586",
     "fabric/item/report/definitionProperties/2.0.0/schema.json": "1ea3450d1321a295abca6a9507548b4e2ec99ab11d3d4526aa73713650296ed0",
     "fabric/item/semanticModel/definitionProperties/1.0.0/schema.json": "3616692421d52ed8e678cd26b09d3ca06c5f191bbdb0a3abb80b156a202b2c38",
-    "fabric/pbip/pbipProperties/1.0.0/schema.json": "fa3c2298424a28426013d6592c3bb5a3006ca0fc41cf16936031a7d5d9661ea7"
+    "fabric/pbip/pbipProperties/1.0.0/schema.json": "fa3c2298424a28426013d6592c3bb5a3006ca0fc41cf16936031a7d5d9661ea7",
+    "fabric/item/report/definition/versionMetadata/1.0.0/schema.json": "06f630c6741ae88dff0d80442295384ef38dca662811ef599a9365b144b3f0ac",
+    "fabric/gitIntegration/platformProperties/2.0.0/schema.json": "610c7c4bdc7e1d8e58c195bf6b1ac9fca269edab93d428f433cb438c9a9dd699",
+    "fabric/item/report/definition/pagesMetadata/1.1.0/schema.json": "b034b8b2f40fe9e2a4a6ed95b24b31c9b8cd1bcdf4773853373b59590579dd77"
   }
 }

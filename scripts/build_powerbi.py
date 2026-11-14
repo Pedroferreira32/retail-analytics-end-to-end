@@ -6,6 +6,7 @@ Power BI Desktop must perform the final refresh, DAX execution and PBIX export.
 
 import argparse
 from pathlib import Path
+from uuid import NAMESPACE_URL, uuid5
 
 import pandas as pd
 
@@ -256,6 +257,24 @@ def build(run: Path, output: Path) -> None:
     report = output / "RetailAnalytics.Report"
     semantic.mkdir(exist_ok=True)
     report.mkdir(exist_ok=True)
+    for folder, kind in [(semantic, "SemanticModel"), (report, "Report")]:
+        write_json(
+            folder / ".platform",
+            {
+                "$schema": SCHEMA + "fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+                "metadata": {"type": kind, "displayName": "Retail Analytics"},
+                "config": {
+                    "version": "2.0",
+                    "logicalId": str(
+                        uuid5(
+                            NAMESPACE_URL,
+                            "https://github.com/Pedroferreira32/retail-analytics-end-to-end/"
+                            + folder.name,
+                        )
+                    ),
+                },
+            },
+        )
     write_json(
         output / "RetailAnalytics.pbip",
         {
@@ -408,6 +427,13 @@ def build(run: Path, output: Path) -> None:
     definition = report / "definition"
     definition.mkdir(exist_ok=True)
     write_json(
+        definition / "version.json",
+        {
+            "$schema": SCHEMA + "fabric/item/report/definition/versionMetadata/1.0.0/schema.json",
+            "version": "2.0.0",
+        },
+    )
+    write_json(
         definition / "report.json",
         {
             "$schema": SCHEMA + "fabric/item/report/definition/report/3.0.0/schema.json",
@@ -445,7 +471,7 @@ def build(run: Path, output: Path) -> None:
     write_json(
         definition / "pages" / "pages.json",
         {
-            "$schema": SCHEMA + "fabric/item/report/definition/pagesMetadata/1.0.0/schema.json",
+            "$schema": SCHEMA + "fabric/item/report/definition/pagesMetadata/1.1.0/schema.json",
             "pageOrder": [p[0] for p in page_specs],
             "activePageName": "overview",
         },
