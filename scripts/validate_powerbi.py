@@ -43,7 +43,9 @@ def validate(root: Path = ROOT / "powerbi") -> dict:
     # A valid JSON file does not prove that the complete Desktop item exists.
     logical_ids = []
     for kind in ["Report", "SemanticModel"]:
-        platform = json.loads((root / f"RetailAnalytics.{kind}" / ".platform").read_text())
+        platform = json.loads(
+            (root / f"RetailAnalytics.{kind}" / ".platform").read_text(encoding="utf-8")
+        )
         if platform.get("metadata", {}).get("type") != kind:
             raise ValueError(f"Invalid Power BI item type: RetailAnalytics.{kind}")
         logical_ids.append(UUID(platform["config"]["logicalId"]))
@@ -118,8 +120,10 @@ def validate(root: Path = ROOT / "powerbi") -> dict:
     if not asset.is_relative_to(asset_root.resolve()):
         raise ValueError("Invalid custom theme resource path")
     require_file(asset)
-    theme_schema = json.loads((schemas / "reportThemeSchema-2.159.json").read_text())
-    jsonschema.Draft7Validator(theme_schema).validate(json.loads(asset.read_text()))
+    theme_schema = json.loads(
+        (schemas / "reportThemeSchema-2.159.json").read_text(encoding="utf-8")
+    )
+    jsonschema.Draft7Validator(theme_schema).validate(json.loads(asset.read_text(encoding="utf-8")))
     visuals = 0
     data_visuals = 0
     navigation_actions = 0

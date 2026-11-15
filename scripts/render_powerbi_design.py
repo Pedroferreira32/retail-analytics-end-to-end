@@ -15,8 +15,8 @@ matplotlib.use("Agg")
 ROOT = Path(__file__).resolve().parents[1]
 
 RUN = ROOT / "data/processed"
-RUN = RUN / json.loads((RUN / "latest.json").read_text())["path"]
-SUMMARY = json.loads((RUN / "summary.json").read_text())
+RUN = RUN / json.loads((RUN / "latest.json").read_text(encoding="utf-8"))["path"]
+SUMMARY = json.loads((RUN / "summary.json").read_text(encoding="utf-8"))
 FRAMES = {
     n: pd.read_parquet(RUN / "parquet" / (n + ".parquet"))
     for n in [
@@ -265,7 +265,9 @@ def render_chart(image, draw, v):
 def render(page):
     image = Image.new("RGBA", (1440 * S, 932 * S), COLORS["canvas"])
     draw = ImageDraw.Draw(image)
-    visuals = [json.loads(p.read_text()) for p in (page / "visuals").glob("*/visual.json")]
+    visuals = [
+        json.loads(p.read_text(encoding="utf-8")) for p in (page / "visuals").glob("*/visual.json")
+    ]
     for v in sorted(visuals, key=lambda v: v["position"]["z"]):
         p = v["position"]
         x, y, w, h = [p[k] for k in ["x", "y", "width", "height"]]

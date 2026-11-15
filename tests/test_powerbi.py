@@ -31,11 +31,15 @@ def test_generator_emits_complete_desktop_bootstrap_metadata(validated_run, tmp_
     output = tmp_path / "powerbi"
     script("build_powerbi").build(validated_run, output)
     shutil.copytree(ROOT / "powerbi" / "schemas", output / "schemas")
-    version = json.loads((output / "RetailAnalytics.Report/definition/version.json").read_text())
+    version = json.loads(
+        (output / "RetailAnalytics.Report/definition/version.json").read_text(encoding="utf-8")
+    )
     assert version["version"] == "2.0.0"
     ids = []
     for kind in ["Report", "SemanticModel"]:
-        platform = json.loads((output / f"RetailAnalytics.{kind}/.platform").read_text())
+        platform = json.loads(
+            (output / f"RetailAnalytics.{kind}/.platform").read_text(encoding="utf-8")
+        )
         assert platform["metadata"]["type"] == kind
         ids.append(platform["config"]["logicalId"])
     assert ids[0] != ids[1]
@@ -78,7 +82,7 @@ def test_generated_layout_keeps_dropdown_filters_and_visible_static_text():
     pages = ROOT / "powerbi/RetailAnalytics.Report/definition/pages"
     for page in [p for p in pages.iterdir() if p.is_dir()]:
         for path in (page / "visuals").glob("*/visual.json"):
-            v = json.loads(path.read_text())
+            v = json.loads(path.read_text(encoding="utf-8"))
             if v["visual"]["visualType"] == "slicer":
                 mode = v["visual"]["objects"]["data"][0]["properties"]["mode"]
                 assert mode["expr"]["Literal"]["Value"] == "'Dropdown'"
@@ -95,9 +99,9 @@ def test_broken_page_navigation_is_rejected(tmp_path):
     path = (
         output / "RetailAnalytics.Report/definition/pages/overview/visuals/nav_quality/visual.json"
     )
-    v = json.loads(path.read_text())
+    v = json.loads(path.read_text(encoding="utf-8"))
     props = v["visual"]["visualContainerObjects"]["visualLink"][0]["properties"]
     props["navigationSection"]["expr"]["Literal"]["Value"] = "'missing_page'"
-    path.write_text(json.dumps(v))
+    path.write_text(json.dumps(v), encoding="utf-8")
     with pytest.raises(ValueError, match="navigation points to an unknown page"):
         script("validate_powerbi").validate(output)
