@@ -100,7 +100,29 @@ def validate(root: Path = ROOT / "powerbi") -> dict:
     metadata = json.loads((report / "pages" / "pages.json").read_text(encoding="utf-8"))
     if metadata.get("activePageName") not in metadata["pageOrder"]:
         raise ValueError("Power BI active page must be included in pageOrder")
+    settings = json.loads((report / "report.json").read_text(encoding="utf-8"))
+    custom_theme = settings["themeCollection"].get("customTheme")
+    if not custom_theme:
+        raise ValueError("The report must register its custom theme")
+    registered = [
+        item
+        for package in settings.get("resourcePackages", [])
+        if package["name"] == custom_theme["type"]
+        for item in package["items"]
+        if item["name"] == custom_theme["name"] and item["type"] == "CustomTheme"
+    ]
+    if len(registered) != 1:
+        raise ValueError("The custom theme must have one matching resource registration")
+    asset_root = root / "RetailAnalytics.Report" / "StaticResources" / custom_theme["type"]
+    asset = (asset_root / registered[0]["path"]).resolve()
+    if not asset.is_relative_to(asset_root.resolve()):
+        raise ValueError("Invalid custom theme resource path")
+    require_file(asset)
+    theme_schema = json.loads((schemas / "reportThemeSchema-2.159.json").read_text())
+    jsonschema.Draft7Validator(theme_schema).validate(json.loads(asset.read_text()))
     visuals = 0
+    data_visuals = 0
+    navigation_actions = 0
     for page_name in metadata["pageOrder"]:
         folder = report / "pages" / page_name
         require_file(folder / "page.json")
@@ -111,6 +133,23 @@ def validate(root: Path = ROOT / "powerbi") -> dict:
             assert position["x"] >= 0 and position["y"] >= 0
             assert position["x"] + position["width"] <= page["width"]
             assert position["y"] + position["height"] <= page["height"]
+            config = visual["visual"]
+            if config["visualType"] == "textbox":
+                paragraphs = config["objects"]["general"][0]["properties"]["paragraphs"]
+                if not isinstance(paragraphs, list) or not paragraphs:
+                    raise ValueError(f"{path}: textbox paragraphs must be a native array")
+            links = config.get("visualContainerObjects", {}).get("visualLink", [])
+            for link in links:
+                props = link["properties"]
+                if props.get("type", {}).get("expr", {}).get("Literal", {}).get("Value") == (
+                    "'PageNavigation'"
+                ):
+                    target = props["navigationSection"]["expr"]["Literal"]["Value"].strip("'")
+                    if target not in metadata["pageOrder"]:
+                        raise ValueError(f"{path}: navigation points to an unknown page")
+                    navigation_actions += 1
+            if config.get("query", {}).get("queryState"):
+                data_visuals += 1
             for role in visual["visual"].get("query", {}).get("queryState", {}).values():
                 for projection in role["projections"]:
                     kind, field = next(iter(projection["field"].items()))
@@ -129,6 +168,9 @@ def validate(root: Path = ROOT / "powerbi") -> dict:
         "measures": sum(map(len, measures.values())),
         "pages": len(metadata["pageOrder"]),
         "visuals": visuals,
+        "data_visuals": data_visuals,
+        "navigation_actions": navigation_actions,
+        "registered_custom_themes_checked": len(registered),
         "desktop_runtime_validated": False,
     }
     return result

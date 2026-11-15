@@ -66,7 +66,7 @@ Os dados originais não são modificados. Cada execução bem-sucedida gera uma 
 | Publicação real no BigQuery e reconciliação na nuvem | Concluídas no projeto `retail-analytics-514717`; [evidência do terminal e 11 contagens conferidas](docs/evidence/bigquery-cli-receipt.json) |
 | Publicação BigQuery pelo GitHub Actions com WIF | Workflow implementado; configuração IAM/WIF e execução na nuvem pelo GitHub ainda pendentes |
 | Metadados, relacionamentos e vínculos dos visuais Power BI | Validados automaticamente |
-| Atualização no Power BI Desktop e exportação PBIX | Dependem da validação no Desktop Windows |
+| Aceitação no Desktop e exportação PBIX | Página executiva inicial carregada pelo usuário; layout revisado, filtros e exportação ainda em validação |
 | Publicação no Power BI Service | Depende de conta/workspace conectado |
 
 Não trato teste com cliente simulado ou validação de JSON como prova de publicação na nuvem. Os limites de cada etapa estão registrados.
@@ -82,6 +82,7 @@ Não trato teste com cliente simulado ou validação de JSON como prova de publi
 | Resultados reproduzíveis | [Evidências](docs/evidence/README.md) |
 | Implantação na nuvem | [BigQuery e IAM/WIF](docs/bigquery.md) |
 | Abertura e atualização do relatório | [Power BI](powerbi/README.md) |
+| Layout, navegação e aplicação da revisão | [Guia do layout](docs/powerbi-layout.md) |
 | Próximas validações de publicação | [Checklist](docs/publication.md) |
 
 Dados: **Olist**, [Kaggle](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce), **CC BY-NC-SA 4.0**. Uso educacional e não comercial. Código original sob licença MIT; resultados derivados mantêm a atribuição e a licença dos dados.

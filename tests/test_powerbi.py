@@ -20,8 +20,11 @@ def test_powerbi_definitions_and_model_bindings():
     assert result["pages"] == 4
     assert result["tables"] == 7
     assert result["relationships"] == 8
-    assert result["visuals"] == 32
+    assert result["data_visuals"] == 32
+    assert result["visuals"] > result["data_visuals"]
     assert result["measures"] == 20
+    assert result["navigation_actions"] == 16
+    assert result["registered_custom_themes_checked"] == 1
 
 
 def test_generator_emits_complete_desktop_bootstrap_metadata(validated_run, tmp_path):
@@ -57,4 +60,44 @@ def test_missing_required_powerbi_files_are_rejected(tmp_path, relative):
     shutil.copytree(ROOT / "powerbi", output, ignore=shutil.ignore_patterns("data", ".pbi"))
     (output / relative).unlink(missing_ok=True)
     with pytest.raises(ValueError, match="Missing required Power BI file"):
+        script("validate_powerbi").validate(output)
+
+
+def test_missing_registered_theme_asset_is_rejected(tmp_path):
+    output = tmp_path / "powerbi"
+    shutil.copytree(ROOT / "powerbi", output, ignore=shutil.ignore_patterns("data", ".pbi"))
+    for theme in (output / "RetailAnalytics.Report/StaticResources/RegisteredResources").glob(
+        "*.json"
+    ):
+        theme.unlink()
+    with pytest.raises(ValueError, match="Missing required Power BI file"):
+        script("validate_powerbi").validate(output)
+
+
+def test_generated_layout_keeps_dropdown_filters_and_visible_static_text():
+    pages = ROOT / "powerbi/RetailAnalytics.Report/definition/pages"
+    for page in [p for p in pages.iterdir() if p.is_dir()]:
+        for path in (page / "visuals").glob("*/visual.json"):
+            v = json.loads(path.read_text())
+            if v["visual"]["visualType"] == "slicer":
+                mode = v["visual"]["objects"]["data"][0]["properties"]["mode"]
+                assert mode["expr"]["Literal"]["Value"] == "'Dropdown'"
+                assert v["position"]["height"] >= 80  # Header + selector + padding must fit.
+            elif v["visual"]["visualType"] == "textbox":
+                paragraphs = v["visual"]["objects"]["general"][0]["properties"]["paragraphs"]
+                assert isinstance(paragraphs, list)
+                assert all(isinstance(p["textRuns"], list) for p in paragraphs)
+
+
+def test_broken_page_navigation_is_rejected(tmp_path):
+    output = tmp_path / "powerbi"
+    shutil.copytree(ROOT / "powerbi", output, ignore=shutil.ignore_patterns("data", ".pbi"))
+    path = (
+        output / "RetailAnalytics.Report/definition/pages/overview/visuals/nav_quality/visual.json"
+    )
+    v = json.loads(path.read_text())
+    props = v["visual"]["visualContainerObjects"]["visualLink"][0]["properties"]
+    props["navigationSection"]["expr"]["Literal"]["Value"] = "'missing_page'"
+    path.write_text(json.dumps(v))
+    with pytest.raises(ValueError, match="navigation points to an unknown page"):
         script("validate_powerbi").validate(output)

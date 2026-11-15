@@ -4,5 +4,31 @@
   "displayName": "01 | Visão executiva",
   "displayOption": "FitToPage",
   "width": 1440,
-  "height": 900
+  "height": 900,
+  "objects": {
+    "background": [
+      {
+        "properties": {
+          "color": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'#F2F5F8'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
 }

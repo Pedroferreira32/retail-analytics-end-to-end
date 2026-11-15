@@ -1,22 +1,85 @@
 {
   "name": "Retail Analytics",
   "dataColors": [
-    "#176B87",
-    "#E7A33E",
-    "#518F76",
-    "#CC6B5A"
+    "#087F8C",
+    "#142D43",
+    "#AD5B23",
+    "#5B83A1",
+    "#6C9E86"
   ],
-  "background": "#F3F6F8",
-  "foreground": "#172B3A",
-  "tableAccent": "#176B87",
+  "background": "#FFFFFF",
+  "foreground": "#20384D",
+  "foregroundNeutralSecondary": "#52677A",
+  "foregroundNeutralTertiary": "#52677A",
+  "backgroundLight": "#E5EBF0",
+  "backgroundNeutral": "#F2F5F8",
+  "tableAccent": "#087F8C",
   "textClasses": {
     "label": {
       "fontFace": "Segoe UI",
-      "fontSize": 11
+      "fontSize": 11,
+      "color": "#20384D"
     },
     "title": {
       "fontFace": "Segoe UI Semibold",
-      "fontSize": 14
+      "fontSize": 13,
+      "color": "#20384D"
+    },
+    "header": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 12,
+      "color": "#20384D"
+    },
+    "callout": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 30,
+      "color": "#142D43"
+    }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "title": [
+          {
+            "fontColor": {
+              "solid": {
+                "color": "#20384D"
+              }
+            },
+            "fontFamily": "Segoe UI Semibold",
+            "fontSize": 13
+          }
+        ],
+        "subTitle": [
+          {
+            "fontColor": {
+              "solid": {
+                "color": "#52677A"
+              }
+            },
+            "fontSize": 10
+          }
+        ],
+        "background": [
+          {
+            "show": true,
+            "color": {
+              "solid": {
+                "color": "#FFFFFF"
+              }
+            },
+            "transparency": 0
+          }
+        ],
+        "padding": [
+          {
+            "top": 16,
+            "bottom": 16,
+            "left": 16,
+            "right": 16
+          }
+        ]
+      }
     }
   }
 }

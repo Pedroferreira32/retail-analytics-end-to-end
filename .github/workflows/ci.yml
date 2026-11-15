@@ -48,6 +48,10 @@ jobs:
         run: retail run --raw-dir tests/fixtures/olist --output-dir artifacts/synthetic --source-kind synthetic
       - name: Power BI schema and binding checks
         run: python scripts/validate_powerbi.py
+      - name: Windows report-only layout update preserves model and cache
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: ./tests/windows/test_layout_update.ps1
       - name: Wheel build
         run: python -m build
       - name: Upload validation evidence

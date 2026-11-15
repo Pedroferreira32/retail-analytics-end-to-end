@@ -4,6 +4,28 @@ This directory contains an editable Power BI project with **four report pages, s
 
 **Verification status:** Microsoft JSON schemas, visual/model bindings, relationship references and canvas bounds have been checked automatically. This environment has not executed Power BI Desktop, the DAX engine or a live BigQuery refresh. The PBIP is an authored project awaiting Desktop acceptance; a `.pbix` has not been fabricated.
 
+The user supplied a native Desktop screenshot on 2026-11-15 showing the initial executive page loaded with the expected GMV, delivered-order, ticket and late-rate values. The redesigned layout described below still needs to be opened in Desktop; its static design previews are explicitly labelled and are not native screenshots.
+
+## Atualizar o layout de um projeto que já funciona
+
+1. Salve o relatório atual e **feche o Power BI Desktop**.
+2. Extraia o ZIP novo em um caminho curto, por exemplo `C:\RA_novo`. Evite várias pastas do repositório dentro de outras pastas.
+3. Na pasta `powerbi` do download novo, execute **`ATUALIZAR_LAYOUT.cmd`**.
+4. Quando a janela abrir, selecione o **`RetailAnalytics.pbip` antigo**, que já carrega seus dados.
+5. Abra novamente esse mesmo PBIP antigo. O atualizador troca somente `RetailAnalytics.Report` e cria um backup `RetailAnalytics.Report.bak-*` ao lado. O modelo semântico, os parâmetros, as credenciais locais e o cache de dados permanecem no projeto existente.
+
+Alternativa manual: com o Desktop fechado, faça backup da pasta `RetailAnalytics.Report` antiga e substitua-a pela pasta de mesmo nome do download novo. Mantenha `RetailAnalytics.SemanticModel` e o PBIP atuais. Copie a pasta Report inteira, incluindo `.platform`, `definition` e `StaticResources`.
+
+Para desfazer a atualização, feche o Desktop, retire a pasta Report nova e renomeie o backup para `RetailAnalytics.Report`.
+
+## Redesigned four-page layout
+
+The report now includes a navy header, readable text contrast, page navigation, dropdown filters, exact order counts, metric definitions, explicit chart units, sorted top-10 rankings and an interpretation strip. The theme is registered inside the Report item and loads with it. All 20 model measures and all M connections are unchanged.
+
+The monthly late-rate chart displays a point only when that month's current selection has **at least 100 observed deliveries**. This visual-only sample filter prevents a month with a single delivery from setting the chart's entire scale; it does not alter the rate definition, cards or state ranking. The threshold is printed on the chart. The state ranking uses late-order counts, with rate, observed deliveries and review score in its tooltip. The product ranking similarly exposes orders and ticket in its tooltip.
+
+[Layout guide and static previews](../docs/powerbi-layout.md). Each page keeps its own month/state slicer selection. In Desktop edit mode, use **Ctrl + click** on navigation buttons.
+
 ## Open with local data
 
 From the repository root:
@@ -18,7 +40,7 @@ python scripts/prepare_powerbi.py
 2. Open `powerbi/RetailAnalytics.pbip`.
 3. In **Transform data → Manage parameters**, set `DataFolder` to the absolute path of the generated `powerbi/data` directory. Keep `DataSourceMode=CSV`.
 4. Apply changes and refresh all seven tables. Do not combine the synthetic demonstration output with real Olist evidence.
-5. Import `powerbi/theme.json` through **View → Themes → Browse for themes**.
+5. The custom theme is already registered in the Report folder. `powerbi/theme.json` is also available for manual reuse in other reports.
 6. Perform the acceptance checks below, then use **Save As → Power BI Desktop (.pbix)** if a PBIX export is needed.
 
 Local source data and Desktop caches remain ignored by Git. The placeholder `C:\RetailAnalytics\powerbi\data` is a parameter default; replace it with your own checkout location.
@@ -89,7 +111,8 @@ With every slicer cleared and the real Olist export loaded:
 
 - [ ] The project opens with no unsupported metadata/model errors.
 - [ ] Every table refreshes; M type conversions and nullable logical values have no errors.
-- [ ] All 32 visuals render, with no missing bindings or truncated card values.
+- [ ] All 32 data visuals and their static layout elements render, with no missing bindings or truncated values.
+- [ ] The registered theme, dropdown filters and all four navigation destinations work.
 - [ ] Monthly and state slicers reconcile against the corresponding SQL marts.
 - [ ] Category selection filters order KPIs correctly through `TREATAS`.
 - [ ] Switching CSV/BigQuery preserves baseline totals and purchase date meaning.
@@ -104,6 +127,6 @@ For Power BI Service publication, choose an authorized workspace, publish the va
 python scripts/validate_powerbi.py
 ```
 
-The offline schemas are from [Microsoft's public JSON-schema repository](https://github.com/microsoft/json-schemas). They retain their upstream license and fingerprints under `schemas/`. These checks validate serialized definitions; Desktop is the final runtime authority.
+The offline schemas are from [Microsoft's public JSON-schema repository](https://github.com/microsoft/json-schemas) and the [official report-theme schema collection](https://github.com/microsoft/powerbi-desktop-samples/tree/main/Report%20Theme%20JSON%20Schema). They retain their upstream license and fingerprints under `schemas/`. The validator also checks registered theme files, navigation targets and native textbox arrays. These checks validate serialized definitions; Desktop is the final runtime authority. Windows CI separately exercises the report-only updater and verifies that the existing model, cache and PBIP bytes are preserved.
 
 Official references: [Power BI projects](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-overview), [semantic-model folder](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-dataset), [report folder](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-report), [BigQuery connector](https://learn.microsoft.com/en-us/power-query/connectors/google-bigquery).

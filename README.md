@@ -62,7 +62,7 @@ DuckDB is the local execution and verification target. BigQuery is the cloud war
 | Live BigQuery warehouse and cloud reconciliation | Published in `retail-analytics-514717` via Cloud Shell; [CLI screenshot and 11 reconciled row counts](docs/evidence/bigquery-cli-receipt.json) |
 | BigQuery publication from GitHub Actions using WIF | Workflow implemented; IAM/WIF provisioning and hosted cloud execution remain pending |
 | Power BI PBIP/PBIR, M queries, model and DAX measures | Generated; JSON schemas and bindings checked |
-| Power BI Desktop refresh, DAX execution and PBIX export | Pending execution in Windows Desktop |
+| Power BI Desktop acceptance and PBIX export | Initial executive page rendered in the user's Desktop; redesigned layout, full DAX/filter acceptance and PBIX export pending |
 | Power BI Service publication | Requires a connected account/workspace |
 
 These are separate verification levels. A passing metadata test is not evidence of a successful Desktop refresh or cloud deployment.
@@ -112,6 +112,10 @@ retail bigquery --project YOUR_PROJECT_ID --dataset retail_analytics --location 
 The cloud command creates an isolated snapshot, loads partitioned/clustered facts, builds SQL marts, checks row counts and monetary totals, then advances canonical views. Queries have a bytes-billed cap. [Cloud setup, IAM and rollback](docs/bigquery.md).
 
 Open [powerbi/RetailAnalytics.pbip](powerbi/RetailAnalytics.pbip) in Power BI Desktop, set `DataFolder` to the absolute `powerbi/data` directory and refresh. Alternatively choose `DataSourceMode=BigQuery` and set `BillingProject` and `BigQueryDataset`. The report contains four pages and 20 documented measures. [Power BI setup and acceptance checks](powerbi/README.md).
+
+The [redesigned layout](docs/powerbi-layout.md) adds business questions, metric explanations, page navigation, dropdown filters and an embedded theme. The report-only updater preserves an existing model and its configured source. The image below is a **static design preview, not a Desktop screenshot**.
+
+![Power BI executive layout design preview](docs/images/powerbi-layout-overview.png)
 
 ## Repository guide
 

@@ -1,0 +1,44 @@
+{
+  "revision_date": "2026-11-15",
+  "scope": "Four-page report layout; semantic model and DAX unchanged",
+  "checks": {
+    "status": "passed",
+    "microsoft_schema_documents_checked": 164,
+    "required_project_files_checked": 14,
+    "platform_descriptors_checked": 2,
+    "pbir_format_version": "2.0.0",
+    "tables": 7,
+    "relationships": 8,
+    "measures": 20,
+    "pages": 4,
+    "visuals": 152,
+    "data_visuals": 32,
+    "navigation_actions": 16,
+    "registered_custom_themes_checked": 1,
+    "desktop_runtime_validated": false
+  },
+  "local_tests": {
+    "passed": 79,
+    "coverage_percent": 96.67
+  },
+  "unchanged_assets": {
+    "powerbi/RetailAnalytics.SemanticModel/model.bim": {
+      "sha256": "96a67bb6aaab72c3baafe80b0cd14886e82b4b16aca26e9723e1a121fa0aa7dc",
+      "matches_previous_commit": true
+    },
+    "powerbi/measures.dax": {
+      "sha256": "b9bf9f0b38a0dd9bac4d49780b2f47a2991aac22453059dd04be05dde6e36885",
+      "matches_previous_commit": true
+    }
+  },
+  "previews": {
+    "kind": "Static design reconstruction; not native Power BI Desktop screenshots",
+    "generator": "scripts/render_powerbi_design.py",
+    "data_run": "20261114T183628-2b67c347"
+  },
+  "desktop_acceptance": {
+    "initial_executive_page": "Observed in user-supplied screenshot on 2026-11-15, matching headline baseline",
+    "source_mode_independently_confirmed": false,
+    "redesigned_layout": "Pending user opening and checking the new report in Windows Desktop"
+  }
+}
